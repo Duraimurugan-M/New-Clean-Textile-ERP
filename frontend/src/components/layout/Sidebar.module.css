@@ -1,6 +1,6 @@
 .sidebar {
-  width: 280px;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background:
     linear-gradient(165deg, #0d3f3f 0%, #124846 48%, #1f5c59 100%);
   color: #f8fafc;
@@ -59,6 +59,7 @@
   box-sizing: border-box;
   border: 1px solid transparent;
   font-weight: 600;
+  animation: fadeRise 0.35s ease both;
 }
 
 .navItem:hover {
@@ -75,30 +76,42 @@
   border-color: rgba(255, 255, 255, 0.28);
 }
 
+
 @media (max-width: 1024px) {
   .sidebar {
-    width: 100%;
-    height: auto;
+    height: 100%;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    border-bottom: none;
     box-shadow: none;
-    padding: 16px 12px 8px;
+    padding: 18px 12px 12px;
   }
 
   .logo {
     margin-bottom: 12px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .span {
+    display: block;
+    font-size: 17px;
+    justify-content: center;
   }
 
   .menu {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding-bottom: 6px;
   }
 
   .navItem {
-    margin-bottom: 0;
-    min-width: max-content;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .logo {
+    font-size: 19px;
   }
 }

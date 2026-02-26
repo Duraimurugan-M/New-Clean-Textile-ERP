@@ -8,7 +8,8 @@
   left: 0;
   width: 280px;
   height: 100vh;
-  z-index: 20;
+  z-index: 50;
+  transition: transform 0.28s ease;
 }
 
 .main {
@@ -34,24 +35,58 @@
   animation: fadeRise 0.45s ease both;
 }
 
+.backdrop {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
+    width: min(84vw, 320px);
+    transform: translateX(-104%);
+    box-shadow: 22px 0 44px rgba(15, 23, 42, 0.28);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 45;
+  }
+
+  .backdropShow {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .main {
     margin-left: 0;
-    height: auto;
-    min-height: calc(100vh - 90px);
+    min-height: 100vh;
   }
 
   .navWrapper {
-    padding-top: 8px;
+    height: auto;
+    padding: 10px 12px 0;
   }
 
   .content {
-    padding: 8px 12px 20px;
+    padding: 10px 12px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: min(90vw, 320px);
+  }
+
+  .content {
+    padding: 8px 10px 16px;
   }
 }

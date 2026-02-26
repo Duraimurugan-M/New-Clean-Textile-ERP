@@ -81,3 +81,16 @@ select:focus {
     flex-direction: column;
   }
 }
+
+/* Royal Heading Style */
+.header h2,
+.container h2,
+.title {
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  background: linear-gradient(135deg, #0d3f3f 0%, #124846 48%, #1f5c59 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

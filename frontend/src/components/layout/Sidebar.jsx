@@ -10,93 +10,42 @@ import {
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 
-const Sidebar = () => {
+const Sidebar = ({ onNavigate }) => {
+  const handleNavigate = () => {
+    if (onNavigate) onNavigate();
+  };
+
+  const navItems = [
+    { to: "/dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
+    { to: "/purchase", icon: <FaShoppingCart />, label: "Purchase" },
+    { to: "/inventory", icon: <FaBox />, label: "Inventory" },
+    { to: "/production", icon: <FaIndustry />, label: "Production" },
+    { to: "/sales", icon: <FaShoppingCart />, label: "Sales" },
+    { to: "/customer", icon: <FaUserFriends />, label: "Customer" },
+    { to: "/supplier", icon: <FaTruckLoading />, label: "Suppliers" },
+    { to: "/qc", icon: <FaIndustry />, label: "QC" },
+    { to: "/stock-movement", icon: <FaTruckLoading />, label: "Stock Movement" },
+    { to: "/yarn", icon: <FaBox />, label: "Yarn" },
+    { to: "/vendors", icon: <FaTruck />, label: "Vendors" },
+  ];
+
   return (
     <div className={styles.sidebar}>
-      
-      {/* Fixed Logo */}
-      <div className={styles.logo}>TEXTILE ERP</div>
+      <div className={styles.logo}> <span className={styles.span}>EMATIX</span> <br></br> TEXTILE ERP</div>
 
-      {/* Scrollable Menu */}
       <div className={styles.menu}>
-        <NavLink to="/dashboard" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaTachometerAlt />
-          Dashboard
-        </NavLink>
-
-        <NavLink to="/purchase" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaShoppingCart />
-          Purchase
-        </NavLink>
-
-        <NavLink to="/inventory" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaBox />
-          Inventory
-        </NavLink>
-
-        <NavLink to="/production" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaIndustry />
-          Production
-        </NavLink>
-
-        <NavLink to="/sales" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaShoppingCart />
-          Sales
-        </NavLink>
-
-        <NavLink to="/customer" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaUserFriends />
-          Customer
-        </NavLink>
-
-        <NavLink to="/supplier" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaTruckLoading />
-          Suppliers
-        </NavLink>
-
-        <NavLink to="/qc" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaIndustry />
-          QC
-        </NavLink>
-
-        <NavLink to="/stock-movement" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaTruckLoading />
-          Stock Movement
-        </NavLink>
-
-        <NavLink to="/yarn" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaBox />
-          Yarn
-        </NavLink>
-
-        <NavLink to="/vendors" className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }>
-          <FaTruck />
-          Vendors
-        </NavLink>
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            onClick={handleNavigate}
+            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}
+          >
+            {item.icon}
+            {item.label}
+          </NavLink>
+        ))}
       </div>
-
     </div>
   );
 };
