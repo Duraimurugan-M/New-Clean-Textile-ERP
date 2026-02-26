@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Layout from "../components/layout/Layout";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
 import Dashboard from "../pages/dashboard/Dashboard";
 import InventoryList from "../pages/inventory/InventoryList";
 import AddInventory from "../pages/inventory/AddInventory";
@@ -23,190 +24,58 @@ import VendorList from "../pages/vendor/VendorList";
 import AddVendor from "../pages/vendor/AddVendor";
 
 const AppRoutes = () => {
+  const withLayout = (element) => (
+    <ProtectedRoute>
+      <Layout>
+        {element}
+      </Layout>
+    </ProtectedRoute>
+  );
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <Layout>
-              <Dashboard />
-            </Layout>
-          }
-        />
+        <Route path="/dashboard" element={withLayout(<Dashboard />)} />
 
-        <Route
-          path="/inventory"
-          element={
-            <Layout>
-              <InventoryList />
-            </Layout>
-          }
-        />
+        <Route path="/inventory" element={withLayout(<InventoryList />)} />
 
-        <Route
-          path="/inventory/add"
-          element={
-            <Layout>
-              <AddInventory />
-            </Layout>
-          }
-        />
+        <Route path="/inventory/add" element={withLayout(<AddInventory />)} />
 
-        <Route
-          path="/purchase"
-          element={
-            <Layout>
-              <PurchaseList />
-            </Layout>
-          }
-        />
+        <Route path="/purchase" element={withLayout(<PurchaseList />)} />
 
-        <Route
-          path="/purchase/add"
-          element={
-            <Layout>
-              <AddPurchase />
-            </Layout>
-          }
-        />
+        <Route path="/purchase/add" element={withLayout(<AddPurchase />)} />
 
-        <Route
-          path="/production"
-          element={
-            <Layout>
-              <ProductionList />
-            </Layout>
-          }
-        />
+        <Route path="/production" element={withLayout(<ProductionList />)} />
 
-        <Route
-          path="/production/add"
-          element={
-            <Layout>
-              <AddProduction />
-            </Layout>
-          }
-        />
+        <Route path="/production/add" element={withLayout(<AddProduction />)} />
 
-        <Route
-          path="/sales"
-          element={
-            <Layout>
-              <SalesList />
-            </Layout>
-          }
-        />
+        <Route path="/sales" element={withLayout(<SalesList />)} />
 
-        <Route
-          path="/sales/add"
-          element={
-            <Layout>
-              <AddSales />
-            </Layout>
-          }
-        />
+        <Route path="/sales/add" element={withLayout(<AddSales />)} />
 
-        <Route
-          path="/customer"
-          element={
-            <Layout>
-              <CustomerList />
-            </Layout>
-          }
-        />
+        <Route path="/customer" element={withLayout(<CustomerList />)} />
 
-        <Route
-          path="/customer/add"
-          element={
-            <Layout>
-              <AddCustomer />
-            </Layout>
-          }
-        />
+        <Route path="/customer/add" element={withLayout(<AddCustomer />)} />
 
-        <Route
-          path="/supplier"
-          element={
-            <Layout>
-              <SupplierList />
-            </Layout>
-          }
-        />
+        <Route path="/supplier" element={withLayout(<SupplierList />)} />
 
-        <Route
-          path="/supplier/add"
-          element={
-            <Layout>
-              <AddSupplier />
-            </Layout>
-          }
-        />
+        <Route path="/supplier/add" element={withLayout(<AddSupplier />)} />
 
-        <Route
-          path="/qc"
-          element={
-            <Layout>
-              <QCList />
-            </Layout>
-          }
-        />
+        <Route path="/qc" element={withLayout(<QCList />)} />
 
-        <Route
-          path="/qc/add"
-          element={
-            <Layout>
-              <AddQC />
-            </Layout>
-          }
-        />
+        <Route path="/qc/add" element={withLayout(<AddQC />)} />
 
-        <Route
-          path="/stock-movement"
-          element={
-            <Layout>
-              <StockMovementList />
-            </Layout>
-          }
-        />
+        <Route path="/stock-movement" element={withLayout(<StockMovementList />)} />
 
-        <Route
-          path="/yarn"
-          element={
-            <Layout>
-              <YarnList />
-            </Layout>
-          }
-        />
+        <Route path="/yarn" element={withLayout(<YarnList />)} />
 
-        <Route
-          path="/yarn/add"
-          element={
-            <Layout>
-              <AddYarn />
-            </Layout>
-          }
-        />
+        <Route path="/yarn/add" element={withLayout(<AddYarn />)} />
 
-        <Route
-          path="/vendors"
-          element={
-            <Layout>
-              <VendorList />
-            </Layout>
-          }
-        />
+        <Route path="/vendors" element={withLayout(<VendorList />)} />
 
-        <Route
-          path="/vendors/add"
-          element={
-            <Layout>
-              <AddVendor />
-            </Layout>
-          }
-        />
+        <Route path="/vendors/add" element={withLayout(<AddVendor />)} />
 
       </Routes>
     </BrowserRouter>

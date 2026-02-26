@@ -1,11 +1,22 @@
 import express from "express";
 import StockMovement from "../models/StockMovement.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import checkPermission from "../middleware/permissionMiddleware.js";
 import QueryFeatures from "../utils/queryFeatures.js";
 
 const router = express.Router();
+const devOnly = (req, res, next) => {
+  if (process.env.NODE_ENV !== "development") {
+    return res.status(403).json({ message: "Forbidden in non-development environment" });
+  }
+  next();
+};
 
-router.get("/", authMiddleware, async (req, res) => {
+router.get(
+  "/",
+  authMiddleware,
+  checkPermission("reports", "view"),
+  async (req, res) => {
   try {
     const totalRecords = await StockMovement.countDocuments();
 
@@ -32,7 +43,12 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Delete all stock movement records (Dev Only)
-router.delete("/delete-all", authMiddleware, async (req, res) => {
+router.delete(
+  "/delete-all",
+  devOnly,
+  authMiddleware,
+  checkPermission("settings", "manageRoles"),
+  async (req, res) => {
   try {
     await StockMovement.deleteMany();
 

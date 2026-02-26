@@ -1,7 +1,11 @@
 import Inventory from "../models/Inventory.js";
 
 // ➕ Add Stock
-export const addStock = async (data) => {
+export const addStock = async (data, session = null) => {
+  if (session) {
+    const [stock] = await Inventory.create([data], { session });
+    return stock;
+  }
   return await Inventory.create(data);
 };
 
@@ -10,12 +14,13 @@ export const deductStock = async ({
   materialType,
   lotNumber,
   quantity,
+  session = null,
 }) => {
   const stock = await Inventory.findOne({
     materialType,
     lotNumber,
     status: "Available",
-  });
+  }).session(session);
 
   if (!stock) {
     throw new Error("Stock not found");
@@ -31,7 +36,7 @@ export const deductStock = async ({
     stock.status = "Consumed";
   }
 
-  await stock.save();
+  await stock.save({ session });
   return stock;
 };
 

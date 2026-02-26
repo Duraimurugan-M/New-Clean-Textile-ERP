@@ -3,8 +3,10 @@ import { addStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import QueryFeatures from "../utils/queryFeatures.js";
+import mongoose from "mongoose";
 
 export const createPurchase = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
     const { supplier, materialType, lotNumber, quantity, unit, ratePerUnit } =
       req.body;
@@ -18,13 +20,17 @@ export const createPurchase = async (req, res) => {
     if (Number(ratePerUnit) <= 0)
       return res.status(400).json({ message: "Rate must be greater than 0" });
 
-    const existingLot = await Inventory.findOne({ lotNumber });
-    if (existingLot)
+    session.startTransaction();
+
+    const existingLot = await Inventory.findOne({ lotNumber }).session(session);
+    if (existingLot) {
+      await session.abortTransaction();
       return res.status(400).json({ message: "Lot already exists" });
+    }
 
     const totalAmount = quantity * ratePerUnit;
 
-    const purchase = await Purchase.create({
+    const [purchase] = await Purchase.create([{
       supplier,
       materialType,
       lotNumber,
@@ -33,20 +39,21 @@ export const createPurchase = async (req, res) => {
       ratePerUnit,
       totalAmount,
       purchasedBy: req.user._id,
-    });
+    }], { session });
 
     await addStock({
       materialType,
       lotNumber,
       quantity,
       unit,
+      ratePerUnit,
       location: "Main Warehouse",
       createdBy: req.user._id,
-    });
+    }, session);
 
-    const stockAfter = await Inventory.findOne({ materialType, lotNumber });
+    const stockAfter = await Inventory.findOne({ materialType, lotNumber }).session(session);
 
-    await StockMovement.create({
+    await StockMovement.create([{
       materialType,
       lotNumber,
       movementType: "IN",
@@ -56,7 +63,9 @@ export const createPurchase = async (req, res) => {
       newStock: stockAfter.quantity,
       referenceId: purchase._id,
       performedBy: req.user._id,
-    });
+    }], { session });
+
+    await session.commitTransaction();
 
     res.status(201).json({
       success: true,
@@ -64,7 +73,12 @@ export const createPurchase = async (req, res) => {
       data: purchase,
     });
   } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 

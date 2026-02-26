@@ -3,9 +3,11 @@ import { addStock, deductStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import QueryFeatures from "../utils/queryFeatures.js";
+import mongoose from "mongoose";
 
 // ✅ Create Production
 export const createProduction = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
     const {
       inputMaterialType,
@@ -41,12 +43,15 @@ export const createProduction = async (req, res) => {
       });
     }
 
+    session.startTransaction();
+
     // 🔒 Output lot must NOT exist
     const existingOutputLot = await Inventory.findOne({
       lotNumber: outputLotNumber,
-    });
+    }).session(session);
 
     if (existingOutputLot) {
+      await session.abortTransaction();
       return res.status(400).json({
         message: "Output lot already exists",
       });
@@ -56,15 +61,17 @@ export const createProduction = async (req, res) => {
     const inputStockBefore = await Inventory.findOne({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
-    });
+    }).session(session);
 
     if (!inputStockBefore) {
+      await session.abortTransaction();
       return res.status(400).json({
         message: "Input lot not found in inventory",
       });
     }
 
     if (inputStockBefore.quantity < inputQty) {
+      await session.abortTransaction();
       return res.status(400).json({
         message: `Insufficient stock. Available: ${inputStockBefore.quantity}`,
       });
@@ -75,13 +82,14 @@ export const createProduction = async (req, res) => {
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
       quantity: inputQty,
+      session,
     });
 
     // Get stock after deduction
     const inputStockAfter = await Inventory.findOne({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
-    });
+    }).session(session);
 
     // 📊 Calculate Wastage & Efficiency
     const wastage = inputQty - outputQty;
@@ -89,7 +97,7 @@ export const createProduction = async (req, res) => {
     const efficiencyPercentage = (outputQty / inputQty) * 100;
 
     // ✅ Create Production Record
-    const production = await Production.create({
+    const [production] = await Production.create([{
       inputMaterialType,
       inputLotNumber,
       inputQuantity: inputQty,
@@ -101,10 +109,10 @@ export const createProduction = async (req, res) => {
       efficiencyPercentage: Number(efficiencyPercentage.toFixed(2)),
       status: "Completed",
       createdBy: req.user._id,
-    });
+    }], { session });
 
     // 📘 Ledger ENTRY (INPUT OUT)
-    await StockMovement.create({
+    await StockMovement.create([{
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
       movementType: "OUT",
@@ -114,7 +122,7 @@ export const createProduction = async (req, res) => {
       newStock: inputStockAfter.quantity,
       referenceId: production._id,
       performedBy: req.user._id,
-    });
+    }], { session });
 
     // 🔼 Add Output Stock
     await addStock({
@@ -122,17 +130,18 @@ export const createProduction = async (req, res) => {
       lotNumber: outputLotNumber,
       quantity: outputQty,
       unit: inputStockBefore.unit,
+      ratePerUnit: inputStockBefore.ratePerUnit || 0,
       location: "Production Warehouse",
       createdBy: req.user._id,
-    });
+    }, session);
 
     const outputStockAfter = await Inventory.findOne({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
-    });
+    }).session(session);
 
     // 📘 Ledger ENTRY (OUTPUT IN)
-    await StockMovement.create({
+    await StockMovement.create([{
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
       movementType: "IN",
@@ -142,7 +151,9 @@ export const createProduction = async (req, res) => {
       newStock: outputStockAfter.quantity,
       referenceId: production._id,
       performedBy: req.user._id,
-    });
+    }], { session });
+
+    await session.commitTransaction();
 
     // ✅ Final Response
     res.status(201).json({
@@ -151,7 +162,12 @@ export const createProduction = async (req, res) => {
       data: production,
     });
   } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 

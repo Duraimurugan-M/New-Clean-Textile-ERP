@@ -9,8 +9,19 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import checkPermission from "../middleware/permissionMiddleware.js";
 
 const router = express.Router();
+const devOnly = (req, res, next) => {
+  if (process.env.NODE_ENV !== "development") {
+    return res.status(403).json({ message: "Forbidden in non-development environment" });
+  }
+  next();
+};
 
-router.get("/", authMiddleware, getPurchases);
+router.get(
+  "/",
+  authMiddleware,
+  checkPermission("purchase", "view"),
+  getPurchases
+);
 
 router.post(
   "/",
@@ -21,6 +32,7 @@ router.post(
 
 router.delete(
   "/delete-all",
+  devOnly,
   authMiddleware,
   checkPermission("purchase", "delete"),
   deleteAllPurchases

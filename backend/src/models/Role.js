@@ -30,16 +30,19 @@ const roleSchema = new mongoose.Schema(
         view: { type: Boolean, default: false },
         create: { type: Boolean, default: false },
         edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
       },
 
       inventory: {
         view: { type: Boolean, default: false },
         edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
       },
 
       qc: {
         view: { type: Boolean, default: false },
         approve: { type: Boolean, default: false },
+        reject: { type: Boolean, default: false },
       },
 
       accounts: {
@@ -51,6 +54,7 @@ const roleSchema = new mongoose.Schema(
       payroll: {
         view: { type: Boolean, default: false },
         generate: { type: Boolean, default: false },
+        manage: { type: Boolean, default: false },
       },
 
       jobWork: {
@@ -61,6 +65,8 @@ const roleSchema = new mongoose.Schema(
 
       reports: {
         view: { type: Boolean, default: false },
+        generate: { type: Boolean, default: false },
+        export: { type: Boolean, default: false },
       },
 
       settings: {

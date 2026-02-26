@@ -44,24 +44,28 @@ const AddCustomer = () => {
           name="contactPerson"
           placeholder="Contact Person"
           onChange={handleChange}
+          required
         />
 
         <input
           name="phone"
           placeholder="Phone"
           onChange={handleChange}
+          required
         />
 
         <input
           name="email"
           placeholder="Email"
           onChange={handleChange}
+          required
         />
 
         <textarea
           name="address"
           placeholder="Address"
           onChange={handleChange}
+          required
         />
 
         <button type="submit">Save Customer</button>

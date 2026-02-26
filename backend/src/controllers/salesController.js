@@ -4,9 +4,11 @@ import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
 import QC from "../models/QC.js";
 import QueryFeatures from "../utils/queryFeatures.js";
+import mongoose from "mongoose";
 
 // ✅ Create Sale
 export const createSale = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
     const { customer, materialType, lotNumber, quantity, ratePerUnit } =
       req.body;
@@ -30,44 +32,55 @@ export const createSale = async (req, res) => {
         .json({ message: "Quantity must be greater than 0" });
     }
 
-    // 🔒 QC Check
-    const qcRecord = await QC.findOne({ lotNumber });
-    if (!qcRecord)
-      return res.status(400).json({ message: "QC not completed" });
+    session.startTransaction();
 
-    if (qcRecord.status !== "Approved")
+    // 🔒 QC Check
+    const qcRecord = await QC.findOne({ lotNumber }).session(session);
+    if (!qcRecord) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "QC not completed" });
+    }
+
+    if (qcRecord.status !== "Approved") {
+      await session.abortTransaction();
       return res.status(400).json({ message: "QC not approved" });
+    }
 
     // 🔒 Check Inventory
     const stockBefore = await Inventory.findOne({
       materialType: "FinishedFabric",
       lotNumber,
-    });
+    }).session(session);
 
-    if (!stockBefore)
+    if (!stockBefore) {
+      await session.abortTransaction();
       return res.status(400).json({ message: "Lot not found" });
+    }
 
-    if (stockBefore.quantity < qty)
+    if (stockBefore.quantity < qty) {
+      await session.abortTransaction();
       return res.status(400).json({
         message: `Insufficient stock. Available: ${stockBefore.quantity}`,
       });
+    }
 
     // 🔻 Deduct stock
     await deductStock({
       materialType: "FinishedFabric",
       lotNumber,
       quantity: qty,
+      session,
     });
 
     // Get updated stock
     const stockAfter = await Inventory.findOne({
       materialType: "FinishedFabric",
       lotNumber,
-    });
+    }).session(session);
 
     const totalAmount = qty * rate;
 
-    const sale = await Sales.create({
+    const [sale] = await Sales.create([{
       customer,
       materialType: "FinishedFabric",
       lotNumber,
@@ -75,10 +88,10 @@ export const createSale = async (req, res) => {
       ratePerUnit: rate,
       totalAmount,
       soldBy: req.user._id,
-    });
+    }], { session });
 
     // 📘 Ledger Entry
-    await StockMovement.create({
+    await StockMovement.create([{
       materialType: "FinishedFabric",
       lotNumber,
       movementType: "OUT",
@@ -88,7 +101,9 @@ export const createSale = async (req, res) => {
       newStock: stockAfter.quantity,
       referenceId: sale._id,
       performedBy: req.user._id,
-    });
+    }], { session });
+
+    await session.commitTransaction();
 
     res.status(201).json({
       success: true,
@@ -96,7 +111,12 @@ export const createSale = async (req, res) => {
       data: sale,
     });
   } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 

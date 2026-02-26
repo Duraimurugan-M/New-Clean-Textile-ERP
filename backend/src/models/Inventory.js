@@ -21,6 +21,12 @@ const inventorySchema = new mongoose.Schema(
       min: 0,
     },
 
+    ratePerUnit: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
     unit: {
       type: String,
       default: "kg",

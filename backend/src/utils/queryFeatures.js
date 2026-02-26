@@ -28,7 +28,7 @@ class QueryFeatures {
         })),
       };
 
-      this.query = this.model.find(searchQuery);
+      this.query = this.query ? this.query.find(searchQuery) : this.model.find(searchQuery);
     }
     return this;
   }

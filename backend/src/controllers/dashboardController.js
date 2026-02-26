@@ -50,7 +50,12 @@ export const getDashboardData = async (req, res) => {
         $group: {
           _id: null,
           totalValue: {
-            $sum: { $multiply: ["$quantity", "$ratePerUnit"] },
+            $sum: {
+              $multiply: [
+                { $ifNull: ["$quantity", 0] },
+                { $ifNull: ["$ratePerUnit", 0] },
+              ],
+            },
           },
         },
       },

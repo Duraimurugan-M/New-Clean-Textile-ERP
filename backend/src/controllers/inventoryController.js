@@ -56,7 +56,28 @@ export const consumeStock = async (req, res) => {
     const { id } = req.params;
     const { quantity } = req.body;
 
-    const updatedStock = await reduceStock(id, quantity);
+    const qty = Number(quantity);
+    if (Number.isNaN(qty) || qty <= 0) {
+      return res.status(400).json({ message: "Quantity must be greater than 0" });
+    }
+
+    const stock = await Inventory.findById(id);
+    if (!stock) {
+      return res.status(404).json({ message: "Stock not found" });
+    }
+
+    if (stock.quantity < qty) {
+      return res
+        .status(400)
+        .json({ message: `Insufficient stock. Available: ${stock.quantity}` });
+    }
+
+    stock.quantity -= qty;
+    if (stock.quantity === 0) {
+      stock.status = "Consumed";
+    }
+
+    const updatedStock = await stock.save();
 
     res.status(200).json({
       success: true,

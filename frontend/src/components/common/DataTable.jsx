@@ -26,7 +26,7 @@ const DataTable = ({
         order,
       });
     }
-  }, [currentPage, rowsPerPage, search, sortBy, order]);
+  }, [currentPage, rowsPerPage, search, sortBy, order, onFetchData, serverMode]);
 
   const handleSort = (key) => {
     const newOrder =
