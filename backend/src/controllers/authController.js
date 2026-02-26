@@ -99,6 +99,22 @@ export const getMe = async (req, res) => {
   });
 };
 
+// Get All users (Admin only)
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().populate("role").select("-password");
+
+    res.json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Logout User
+
 export const logoutUser = async (req, res) => {
   const isProd = process.env.NODE_ENV === "production";
   res.clearCookie("token", {

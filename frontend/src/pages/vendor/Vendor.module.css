@@ -1,62 +1,94 @@
 .container {
-  padding: 25px;
+  background: linear-gradient(165deg, #fffefb, #fffaf1);
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid #ebdfca;
+  box-shadow: 0 16px 36px rgba(24, 34, 42, 0.1);
+}
+
+.formPage {
+  max-width: 640px;
+  margin: 10px auto;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
 }
 
 .addBtn {
-  background: #1e88e5;
-  padding: 8px 14px;
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  padding: 9px 14px;
   color: white;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.addBtn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 .form {
   display: grid;
-  gap: 15px;
-  max-width: 450px;
+  gap: 14px;
+  max-width: 520px;
 }
 
 input,
 select,
 textarea {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd3c2;
+  outline: none;
+  background: #fffefb;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
 textarea {
   resize: none;
-  height: 80px;
+  min-height: 88px;
 }
 
 .submitBtn {
-  background: #4caf50;
+  background: linear-gradient(135deg, #0f766e, #115e59);
   color: white;
-  padding: 10px;
+  padding: 11px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.submitBtn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 .badge {
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .active {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: #def7ec;
+  color: #0f766e;
 }
 
 .inactive {
-  background: #fdecea;
-  color: #c62828;
+  background: #ffedd5;
+  color: #b45309;
 }

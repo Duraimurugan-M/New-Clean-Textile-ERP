@@ -1,96 +1,91 @@
-/* 🔹 Main Container */
 .container {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(165deg, #fffefb, #fffaf0);
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid #eee4d4;
+  box-shadow: 0 18px 38px rgba(25, 36, 44, 0.1);
   width: 100%;
 }
 
-/* 🔹 Title (if needed) */
 .title {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: 20px;
-  color: #1e293b;
+  color: #1f2937;
 }
 
-/* 🔎 Search Input */
 .search {
   margin-bottom: 16px;
-  padding: 8px 12px;
-  width: 250px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  padding: 11px 14px;
+  width: min(290px, 100%);
+  border-radius: 10px;
+  border: 1px solid #dfd7c8;
   outline: none;
-  transition: 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fffefb;
 }
 
 .search:focus {
-  border-color: #16a34a;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
-/* 🔹 Table Wrapper */
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-/* 🔹 Header */
 .table thead {
-  background-color: #f1f5f9;
+  background: #f5efe2;
 }
 
 .table th {
   text-align: left;
-  padding: 12px;
-  font-weight: 600;
-  color: #334155;
+  padding: 13px 12px;
+  font-weight: 800;
+  color: #374151;
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
+  font-size: 13px;
+  letter-spacing: 0.2px;
 }
 
-/* 🔹 Rows */
 .table td {
-  padding: 12px;
-  border-bottom: 1px solid #e2e8f0;
-  color: #475569;
+  padding: 13px 12px;
+  border-bottom: 1px solid #ece5d8;
+  color: #4b5563;
 }
 
-/* 🔹 Hover Effect */
 .table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: #fffcf5;
 }
 
-/* 🔹 Empty Data */
 .noData {
   text-align: center;
   padding: 20px;
-  color: #64748b;
+  color: #6b7280;
 }
 
-/* 🔹 IN / OUT Badge */
 .inBadge {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: #def7ec;
+  color: #0f766e;
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .outBadge {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: #ffedd5;
+  color: #b45309;
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
-/* 🔹 Pagination */
 .pagination {
   margin-top: 18px;
   display: flex;
@@ -99,31 +94,44 @@
   font-size: 14px;
 }
 
-/* Rows Dropdown */
 .pagination select {
   margin-left: 6px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #e0d6c6;
+  background: #fffefb;
 }
 
-/* Buttons */
 .pagination button {
   margin-left: 8px;
-  padding: 6px 10px;
+  padding: 7px 11px;
   border: none;
-  border-radius: 6px;
-  background-color: #2563eb;
-  color: #fff;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  color: #f8fafc;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .pagination button:hover {
-  background-color: #1d4ed8;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .pagination button:disabled {
-  background-color: #94a3b8;
+  background: #b6c3cf;
   cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 14px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
 }

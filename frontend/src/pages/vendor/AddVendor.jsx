@@ -31,7 +31,7 @@ const AddVendor = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${styles.formPage}`}>
       <h2>Add Vendor</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>

@@ -4,6 +4,7 @@ import {
   loginUser,
   getMe,
   logoutUser,
+  getUsers,
   // bootstrapSystem,
 } from "../controllers/authController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -24,6 +25,7 @@ router.post("/login", loginUser);
 // Enable only for controlled one-time bootstrap in non-production environments.
 // router.post("/bootstrap", bootstrapSystem);
 router.get("/me", authMiddleware, getMe);
+router.get("/", authMiddleware, checkPermission("settings", "manageUsers"), getUsers);
 router.post("/logout", authMiddleware, logoutUser);
 
 

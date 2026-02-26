@@ -1,54 +1,60 @@
 .container {
-  background: #ffffff;
+  background: linear-gradient(165deg, #fffefb, #fffaf1);
   padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  border: 1px solid #ebdfca;
+  box-shadow: 0 16px 36px rgba(24, 34, 42, 0.1);
+  max-width: 640px;
+  margin: 10px auto;
 }
 
-h2 {
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #1e293b;
+.container h2 {
+  margin-bottom: 18px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f2937;
 }
 
 .form {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .form input,
 .form textarea {
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  padding: 11px 12px;
+  border: 1px solid #ddd3c2;
+  border-radius: 10px;
   font-size: 14px;
   outline: none;
-  transition: border 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fffefb;
 }
 
 .form input:focus,
 .form textarea:focus {
-  border-color: #16a34a;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
 .form textarea {
   resize: none;
-  min-height: 80px;
+  min-height: 90px;
 }
 
 button {
-  background: #16a34a;
+  background: linear-gradient(135deg, #0f766e, #115e59);
   color: white;
   border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 11px 16px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 button:hover {
-  background: #15803d;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }

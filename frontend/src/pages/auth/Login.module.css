@@ -3,55 +3,66 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f1f5f9;
+  background:
+    radial-gradient(700px 420px at 14% 20%, rgba(15, 118, 110, 0.17), transparent 55%),
+    radial-gradient(780px 460px at 86% 84%, rgba(217, 119, 6, 0.16), transparent 58%),
+    #f6f4ef;
 }
 
 .card {
-  background: #ffffff;
+  background: linear-gradient(170deg, #fffefb, #fff9ed);
   padding: 40px;
   width: 360px;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  border: 1px solid #ebdfcc;
+  box-shadow: 0 28px 60px rgba(26, 35, 42, 0.16);
   display: flex;
   flex-direction: column;
   gap: 18px;
+  animation: fadeRise 0.45s ease both;
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 800;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  color: #1f2937;
 }
 
 .input {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd3c2;
   outline: none;
+  background: #fffefb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
-  border-color: #3b82f6;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.13);
 }
 
 .button {
   padding: 12px;
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #0f766e, #115e59);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
-  font-weight: 500;
-  transition: 0.2s ease;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .button:hover {
-  background-color: #2563eb;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .error {
-  color: #dc2626;
+  color: #b45309;
   font-size: 14px;
   margin: 0;
   text-align: center;
+  font-weight: 600;
 }

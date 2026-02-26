@@ -1,35 +1,57 @@
 .layout {
-  height: 100vh;
+  min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
+  width: 280px;
   height: 100vh;
-  background-color: #0f172a;
+  z-index: 20;
 }
 
-/* Main Section */
 .main {
-  margin-left: 250px;   /* Push content after sidebar */
+  margin-left: 280px;
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Navbar */
 .navWrapper {
-  height: 60px;
+  height: 74px;
   flex-shrink: 0;
+  padding: 14px 20px 0;
 }
 
-/* Scrollable Content */
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
-  background-color: #f8fafc;
+  padding: 12px 20px 28px;
+}
+
+.content > * {
+  animation: fadeRise 0.45s ease both;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .main {
+    margin-left: 0;
+    height: auto;
+    min-height: calc(100vh - 90px);
+  }
+
+  .navWrapper {
+    padding-top: 8px;
+  }
+
+  .content {
+    padding: 8px 12px 20px;
+  }
 }

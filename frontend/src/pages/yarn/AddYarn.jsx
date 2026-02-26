@@ -41,7 +41,7 @@ const AddYarn = () => {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.formPage}`}>
             <h2>Add Yarn</h2>
 
             <form onSubmit={handleSubmit} className={styles.form}>
