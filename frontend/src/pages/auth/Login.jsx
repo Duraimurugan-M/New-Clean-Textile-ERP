@@ -41,7 +41,7 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.title}>Login to ERP</div>
+        <div className={styles.title}>Login to Textile ERP</div>
 
         <input
           className={styles.input}
