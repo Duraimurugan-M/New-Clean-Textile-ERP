@@ -13,6 +13,7 @@ import qcRoutes from "./routes/qcRoutes.js";
 import stockMovementRoutes from "./routes/stockMovementRoutes.js";
 import yarnRoutes from "./routes/yarnRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
+import jobWorkRoutes from "./routes/jobWorkRoutes.js";
 
 
 const app = express();
@@ -43,5 +44,6 @@ app.use("/api/qc", qcRoutes);
 app.use("/api/stock-movement", stockMovementRoutes);
 app.use("/api/yarn", yarnRoutes);
 app.use("/api/vendors", vendorRoutes);
+app.use("/api/job-work", jobWorkRoutes);
 
 export default app;

@@ -127,6 +127,7 @@
 @media (max-width: 768px) {
   .container {
     padding: 14px;
+    overflow: auto;
   }
 
   .pagination {

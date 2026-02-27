@@ -22,6 +22,8 @@ import YarnList from "../pages/yarn/YarnList";
 import AddYarn from "../pages/yarn/AddYarn";
 import VendorList from "../pages/vendor/VendorList";
 import AddVendor from "../pages/vendor/AddVendor";
+import JobWorkList from "../pages/jobWork/JobWorkList";
+import AddJobWork from "../pages/jobWork/AddJobWork";
 
 const AppRoutes = () => {
   const withLayout = (element) => (
@@ -76,6 +78,10 @@ const AppRoutes = () => {
         <Route path="/vendors" element={withLayout(<VendorList />)} />
 
         <Route path="/vendors/add" element={withLayout(<AddVendor />)} />
+
+        <Route path="/job-work" element={withLayout(<JobWorkList />)} />
+
+        <Route path="/job-work/add" element={withLayout(<AddJobWork />)} />
 
       </Routes>
     </BrowserRouter>

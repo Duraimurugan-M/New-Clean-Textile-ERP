@@ -144,7 +144,7 @@ const Dashboard = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Management Dashboard</h1>
+      <h1 className={styles.title}>Dashboard Management</h1>
 
       <div className={styles.kpiGrid}>
         <div className={styles.card}>
