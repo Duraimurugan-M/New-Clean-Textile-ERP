@@ -8,6 +8,7 @@ const DataTable = ({
   totalPages = 1,
   onFetchData,
   searchField = "",
+  title = "table-data",
 }) => {
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -55,6 +56,72 @@ const DataTable = ({
     setOrder(newOrder);
   };
 
+  const exportExcel = () => {
+    const headers = columns.map((col) => col.label);
+    const rows = data.map((row) =>
+      columns.map((col) => {
+        const value = col.render ? col.render(row) : row[col.key];
+        if (typeof value === "object") {
+          return row[col.key] ?? "";
+        }
+        if (typeof value === "string") {
+          return value.replace(/,/g, " ");
+        }
+        return value ?? "";
+      })
+    );
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${title}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+  };
+
+  const exportPdf = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    const headerHtml = columns.map((col) => `<th>${col.label}</th>`).join("");
+    const rowHtml = data
+      .map((row) => {
+        const cols = columns
+          .map((col) => {
+            const value = col.render ? col.render(row) : row[col.key];
+            const safe = typeof value === "object" ? row[col.key] ?? "" : value ?? "";
+            return `<td>${safe}</td>`;
+          })
+          .join("");
+        return `<tr>${cols}</tr>`;
+      })
+      .join("");
+
+    win.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ccc; padding: 8px; font-size: 12px; text-align: left; }
+            th { background: #f3f4f6; }
+          </style>
+        </head>
+        <body>
+          <h2>${title}</h2>
+          <table>
+            <thead><tr>${headerHtml}</tr></thead>
+            <tbody>${rowHtml}</tbody>
+          </table>
+          <script>window.print();</script>
+        </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
   return (
     <div className={styles.container}>
       {searchField && (
@@ -69,6 +136,11 @@ const DataTable = ({
           className={styles.search}
         />
       )}
+
+      <div style={{ marginBottom: 10, display: "flex", gap: 8 }}>
+        <button type="button" onClick={exportExcel}>Export Excel</button>
+        <button type="button" onClick={exportPdf}>Export PDF</button>
+      </div>
 
       <table className={styles.table}>
         <thead>

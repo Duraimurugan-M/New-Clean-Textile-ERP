@@ -2,16 +2,14 @@ import Inventory from "../models/Inventory.js";
 import Production from "../models/Production.js";
 import Sales from "../models/Sales.js";
 import QC from "../models/QC.js";
+import SalesOrder from "../models/SalesOrder.js";
+import JobWork from "../models/JobWork.js";
 
 export const getDashboardData = async (req, res) => {
   try {
-
-    /* ================= RANGE LOGIC ================= */
-
     const range = req.query.range || "monthly";
 
     let groupFormat;
-
     if (range === "daily") {
       groupFormat = {
         year: { $year: "$createdAt" },
@@ -34,37 +32,25 @@ export const getDashboardData = async (req, res) => {
       };
     }
 
-    /* ================= KPI SECTION ================= */
-
-    // 1️⃣ Total Stock Quantity
     const totalStockAgg = await Inventory.aggregate([
       { $group: { _id: null, totalQuantity: { $sum: "$quantity" } } },
     ]);
+    const totalStockQuantity = totalStockAgg[0]?.totalQuantity || 0;
 
-    const totalStockQuantity =
-      totalStockAgg.length > 0 ? totalStockAgg[0].totalQuantity : 0;
-
-    // 2️⃣ Total Stock Value
     const totalStockValueAgg = await Inventory.aggregate([
       {
         $group: {
           _id: null,
           totalValue: {
             $sum: {
-              $multiply: [
-                { $ifNull: ["$quantity", 0] },
-                { $ifNull: ["$ratePerUnit", 0] },
-              ],
+              $multiply: [{ $ifNull: ["$quantity", 0] }, { $ifNull: ["$ratePerUnit", 0] }],
             },
           },
         },
       },
     ]);
+    const totalStockValue = totalStockValueAgg[0]?.totalValue || 0;
 
-    const totalStockValue =
-      totalStockValueAgg.length > 0 ? totalStockValueAgg[0].totalValue : 0;
-
-    // 3️⃣ Today's Production
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -72,26 +58,32 @@ export const getDashboardData = async (req, res) => {
       createdAt: { $gte: startOfDay },
     });
 
-    // 4️⃣ Today's Sales
     const todaySalesAgg = await Sales.aggregate([
       { $match: { createdAt: { $gte: startOfDay } } },
       { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
     ]);
+    const todaySalesAmount = todaySalesAgg[0]?.totalSales || 0;
 
-    const todaySalesAmount =
-      todaySalesAgg.length > 0 ? todaySalesAgg[0].totalSales : 0;
-
-    // 5️⃣ Low Stock
-    const lowStockCount = await Inventory.countDocuments({
+    const lowStockCount = await Inventory.countDocuments({ quantity: { $lt: 50 } });
+    const qcPendingCount = await QC.countDocuments({ status: { $ne: "Approved" } });
+    const totalOrders = await SalesOrder.countDocuments();
+    const pendingJobWorkCount = await JobWork.countDocuments({
+      status: { $in: ["Issued", "PartiallyReceived"] },
+    });
+    const yarnStockAlertCount = await Inventory.countDocuments({
+      materialType: { $in: ["RawYarn", "DyedYarn"] },
       quantity: { $lt: 50 },
     });
 
-    // 6️⃣ QC Pending
-    const qcPendingCount = await QC.countDocuments({
-      status: { $ne: "Approved" },
-    });
-
-    /* ================= TOP CUSTOMERS ================= */
+    const [productionHealth] = await Production.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgEfficiency: { $avg: "$efficiencyPercentage" },
+          avgWastage: { $avg: "$wastagePercentage" },
+        },
+      },
+    ]);
 
     const topCustomers = await Sales.aggregate([
       {
@@ -125,8 +117,6 @@ export const getDashboardData = async (req, res) => {
       },
     ]);
 
-    /* ================= SALES CHART ================= */
-
     const monthlySales = await Sales.aggregate([
       {
         $group: {
@@ -137,9 +127,48 @@ export const getDashboardData = async (req, res) => {
       { $sort: { "_id.year": 1 } },
     ]);
 
-    /* ================= RESPONSE ================= */
+    const monthlyProduction = await Production.aggregate([
+      {
+        $group: {
+          _id: groupFormat,
+          totalOutput: { $sum: "$outputQuantity" },
+          avgEfficiency: { $avg: "$efficiencyPercentage" },
+        },
+      },
+      { $sort: { "_id.year": 1 } },
+    ]);
 
-    res.json({
+    const topJobWorkers = await JobWork.aggregate([
+      {
+        $group: {
+          _id: "$vendor",
+          totalIssued: { $sum: "$issueQuantity" },
+          totalReceived: { $sum: "$receivedQuantity" },
+          avgWastage: { $avg: "$wastagePercentage" },
+        },
+      },
+      { $sort: { totalReceived: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "vendors",
+          localField: "_id",
+          foreignField: "_id",
+          as: "vendorDetails",
+        },
+      },
+      { $unwind: { path: "$vendorDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          vendorName: "$vendorDetails.vendorName",
+          totalIssued: 1,
+          totalReceived: 1,
+          avgWastage: { $round: ["$avgWastage", 2] },
+        },
+      },
+    ]);
+
+    return res.json({
       success: true,
       data: {
         totalStockQuantity,
@@ -148,12 +177,18 @@ export const getDashboardData = async (req, res) => {
         todaySalesAmount,
         lowStockCount,
         qcPendingCount,
+        totalOrders,
+        pendingJobWorkCount,
+        yarnStockAlertCount,
+        avgEfficiency: Number((productionHealth?.avgEfficiency || 0).toFixed(2)),
+        avgWastage: Number((productionHealth?.avgWastage || 0).toFixed(2)),
         topCustomers,
         monthlySales,
+        monthlyProduction,
+        topJobWorkers,
       },
     });
-
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };

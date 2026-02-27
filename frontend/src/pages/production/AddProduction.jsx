@@ -16,12 +16,19 @@ const AddProduction = () => {
   const [availableQty, setAvailableQty] = useState(0);
 
   const [form, setForm] = useState({
+    processType: "Dyeing",
+    shift: "General",
+    machineCode: "",
     inputMaterialType: "",
     inputLotNumber: "",
     inputQuantity: "",
     outputMaterialType: "",
     outputLotNumber: "",
     outputQuantity: "",
+    labourCost: "",
+    machineCost: "",
+    dyeChemicalCost: "",
+    otherCost: "",
   });
 
   // Load inventory
@@ -89,6 +96,37 @@ const inputLots = inventory.filter(
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Input Material */}
         <select
+          name="processType"
+          value={form.processType}
+          onChange={handleChange}
+        >
+          <option value="Dyeing">Dyeing</option>
+          <option value="Bleaching">Bleaching</option>
+          <option value="Weaving">Weaving</option>
+          <option value="Washing">Washing</option>
+          <option value="Finishing">Finishing</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <select
+          name="shift"
+          value={form.shift}
+          onChange={handleChange}
+        >
+          <option value="General">General</option>
+          <option value="A">Shift A</option>
+          <option value="B">Shift B</option>
+          <option value="C">Shift C</option>
+        </select>
+
+        <input
+          name="machineCode"
+          placeholder="Machine Code"
+          value={form.machineCode}
+          onChange={handleChange}
+        />
+
+        <select
           name="inputMaterialType"
           value={form.inputMaterialType}
           onChange={handleChange}
@@ -143,6 +181,31 @@ const inputLots = inventory.filter(
           placeholder="Output Quantity"
           onChange={handleChange}
           required
+        />
+
+        <input
+          name="labourCost"
+          type="number"
+          placeholder="Labour Cost"
+          onChange={handleChange}
+        />
+        <input
+          name="machineCost"
+          type="number"
+          placeholder="Machine Cost"
+          onChange={handleChange}
+        />
+        <input
+          name="dyeChemicalCost"
+          type="number"
+          placeholder="Dye/Chemical Cost"
+          onChange={handleChange}
+        />
+        <input
+          name="otherCost"
+          type="number"
+          placeholder="Other Cost"
+          onChange={handleChange}
         />
 
         <button type="submit">Save Production</button>

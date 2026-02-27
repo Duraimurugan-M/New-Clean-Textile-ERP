@@ -21,6 +21,9 @@ const ProductionList = () => {
   };
 
   const columns = [
+    { key: "processType", label: "Process" },
+    { key: "shift", label: "Shift" },
+    { key: "machineCode", label: "Machine" },
     { key: "inputLotNumber", label: "Input Lot" },
     { key: "inputQuantity", label: "Input Qty" },
     { key: "outputLotNumber", label: "Output Lot" },
@@ -28,6 +31,8 @@ const ProductionList = () => {
     { key: "wastage", label: "Wastage" },
     { key: "wastagePercentage", label: "Wastage %" },
     { key: "efficiencyPercentage", label: "Efficiency %" },
+    { key: "totalProcessCost", label: "Process Cost" },
+    { key: "costPerOutputUnit", label: "Cost/Unit" },
   ];
 
   return (

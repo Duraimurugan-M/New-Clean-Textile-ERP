@@ -19,6 +19,13 @@ const roleSchema = new mongoose.Schema(
         delete: { type: Boolean, default: false },
       },
 
+      salesOrder: {
+        view: { type: Boolean, default: false },
+        create: { type: Boolean, default: false },
+        edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
+      },
+
       purchase: {
         view: { type: Boolean, default: false },
         create: { type: Boolean, default: false },
@@ -27,6 +34,13 @@ const roleSchema = new mongoose.Schema(
       },
 
       production: {
+        view: { type: Boolean, default: false },
+        create: { type: Boolean, default: false },
+        edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
+      },
+
+      beam: {
         view: { type: Boolean, default: false },
         create: { type: Boolean, default: false },
         edit: { type: Boolean, default: false },
@@ -61,6 +75,13 @@ const roleSchema = new mongoose.Schema(
         view: { type: Boolean, default: false },
         issue: { type: Boolean, default: false },
         receive: { type: Boolean, default: false },
+      },
+
+      dispatch: {
+        view: { type: Boolean, default: false },
+        create: { type: Boolean, default: false },
+        edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
       },
 
       reports: {

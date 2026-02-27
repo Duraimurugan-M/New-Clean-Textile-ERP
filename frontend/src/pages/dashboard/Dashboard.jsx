@@ -153,6 +153,11 @@ const Dashboard = () => {
         </div>
 
         <div className={styles.card}>
+          <h4>Total Orders</h4>
+          <p>{data.totalOrders ?? 0}</p>
+        </div>
+
+        <div className={styles.card}>
           <h4>Total Stock Value</h4>
           <p>Rs. {data.totalStockValue ?? 0}</p>
         </div>
@@ -181,6 +186,26 @@ const Dashboard = () => {
         >
           <h4>QC Pending</h4>
           <p>{data.qcPendingCount ?? 0}</p>
+        </div>
+
+        <div className={styles.card}>
+          <h4>Machine Efficiency %</h4>
+          <p>{data.avgEfficiency ?? 0}</p>
+        </div>
+
+        <div className={styles.card}>
+          <h4>Wastage %</h4>
+          <p>{data.avgWastage ?? 0}</p>
+        </div>
+
+        <div className={styles.card}>
+          <h4>Yarn Stock Alert</h4>
+          <p>{data.yarnStockAlertCount ?? 0}</p>
+        </div>
+
+        <div className={styles.card}>
+          <h4>Pending Job Work</h4>
+          <p>{data.pendingJobWorkCount ?? 0}</p>
         </div>
       </div>
 
@@ -253,6 +278,30 @@ const Dashboard = () => {
                       : "-"}
                   </td>
                   <td>{cust.mostProduct}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className={styles.tableSection}>
+          <h3>Top Job Worker Performance</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Vendor</th>
+                <th>Issued</th>
+                <th>Received</th>
+                <th>Avg Wastage %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data.topJobWorkers || []).map((row, index) => (
+                <tr key={`${row.vendorName || "vendor"}-${index}`}>
+                  <td>{row.vendorName || "N/A"}</td>
+                  <td>{row.totalIssued}</td>
+                  <td>{row.totalReceived}</td>
+                  <td>{row.avgWastage ?? 0}</td>
                 </tr>
               ))}
             </tbody>

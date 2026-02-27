@@ -10,12 +10,19 @@ export const createProduction = async (req, res) => {
   const session = await mongoose.startSession();
   try {
     const {
+      processType,
+      shift,
+      machineCode,
       inputMaterialType,
       inputLotNumber,
       inputQuantity,
       outputMaterialType,
       outputLotNumber,
       outputQuantity,
+      labourCost = 0,
+      machineCost = 0,
+      dyeChemicalCost = 0,
+      otherCost = 0,
     } = req.body;
 
     // 🔹 Basic Validation
@@ -95,10 +102,19 @@ export const createProduction = async (req, res) => {
     const wastage = inputQty - outputQty;
     const wastagePercentage = (wastage / inputQty) * 100;
     const efficiencyPercentage = (outputQty / inputQty) * 100;
+    const totalProcessCost =
+      Number(labourCost || 0) +
+      Number(machineCost || 0) +
+      Number(dyeChemicalCost || 0) +
+      Number(otherCost || 0);
+    const costPerOutputUnit = outputQty > 0 ? totalProcessCost / outputQty : 0;
 
     // ✅ Create Production Record
     const [production] = await Production.create([{
       inputMaterialType,
+      processType: processType || "Other",
+      shift: shift || "General",
+      machineCode,
       inputLotNumber,
       inputQuantity: inputQty,
       outputMaterialType,
@@ -107,6 +123,12 @@ export const createProduction = async (req, res) => {
       wastage,
       wastagePercentage: Number(wastagePercentage.toFixed(2)),
       efficiencyPercentage: Number(efficiencyPercentage.toFixed(2)),
+      labourCost: Number(labourCost || 0),
+      machineCost: Number(machineCost || 0),
+      dyeChemicalCost: Number(dyeChemicalCost || 0),
+      otherCost: Number(otherCost || 0),
+      totalProcessCost: Number(totalProcessCost.toFixed(2)),
+      costPerOutputUnit: Number(costPerOutputUnit.toFixed(4)),
       status: "Completed",
       createdBy: req.user._id,
     }], { session });
@@ -178,7 +200,7 @@ export const getProductions = async (req, res) => {
 
     const features = new QueryFeatures(Production, req.query)
       .filter()
-      .search(["inputLotNumber", "outputLotNumber"])
+      .search(["inputLotNumber", "outputLotNumber", "processType", "machineCode"])
       .sort()
       .paginate();
 

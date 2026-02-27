@@ -18,12 +18,21 @@ import AddSupplier from "../pages/supplier/AddSupplier";
 import QCList from "../pages/qc/QCList";
 import AddQC from "../pages/qc/AddQC";
 import StockMovementList from "../pages/stockMovement/StockMovementList";
-import YarnList from "../pages/yarn/YarnList";
-import AddYarn from "../pages/yarn/AddYarn";
 import VendorList from "../pages/vendor/VendorList";
 import AddVendor from "../pages/vendor/AddVendor";
 import JobWorkList from "../pages/jobWork/JobWorkList";
 import AddJobWork from "../pages/jobWork/AddJobWork";
+import BeamList from "../pages/beam/BeamList";
+import AddBeam from "../pages/beam/AddBeam";
+import SalesOrderList from "../pages/salesOrder/SalesOrderList";
+import AddSalesOrder from "../pages/salesOrder/AddSalesOrder";
+import DispatchList from "../pages/dispatch/DispatchList";
+import AddDispatch from "../pages/dispatch/AddDispatch";
+import AccountsList from "../pages/accounts/AccountsList";
+import AddAccountEntry from "../pages/accounts/AddAccountEntry";
+import Reports from "../pages/reports/Reports";
+import ProductionPlanList from "../pages/productionPlan/ProductionPlanList";
+import AddProductionPlan from "../pages/productionPlan/AddProductionPlan";
 
 const AppRoutes = () => {
   const withLayout = (element) => (
@@ -53,9 +62,17 @@ const AppRoutes = () => {
 
         <Route path="/production/add" element={withLayout(<AddProduction />)} />
 
+        <Route path="/production-plans" element={withLayout(<ProductionPlanList />)} />
+
+        <Route path="/production-plans/add" element={withLayout(<AddProductionPlan />)} />
+
         <Route path="/sales" element={withLayout(<SalesList />)} />
 
         <Route path="/sales/add" element={withLayout(<AddSales />)} />
+
+        <Route path="/sales-orders" element={withLayout(<SalesOrderList />)} />
+
+        <Route path="/sales-orders/add" element={withLayout(<AddSalesOrder />)} />
 
         <Route path="/customer" element={withLayout(<CustomerList />)} />
 
@@ -71,9 +88,9 @@ const AppRoutes = () => {
 
         <Route path="/stock-movement" element={withLayout(<StockMovementList />)} />
 
-        <Route path="/yarn" element={withLayout(<YarnList />)} />
+        <Route path="/beams" element={withLayout(<BeamList />)} />
 
-        <Route path="/yarn/add" element={withLayout(<AddYarn />)} />
+        <Route path="/beams/add" element={withLayout(<AddBeam />)} />
 
         <Route path="/vendors" element={withLayout(<VendorList />)} />
 
@@ -82,6 +99,16 @@ const AppRoutes = () => {
         <Route path="/job-work" element={withLayout(<JobWorkList />)} />
 
         <Route path="/job-work/add" element={withLayout(<AddJobWork />)} />
+
+        <Route path="/dispatch" element={withLayout(<DispatchList />)} />
+
+        <Route path="/dispatch/add" element={withLayout(<AddDispatch />)} />
+
+        <Route path="/accounts" element={withLayout(<AccountsList />)} />
+
+        <Route path="/accounts/add" element={withLayout(<AddAccountEntry />)} />
+
+        <Route path="/reports" element={withLayout(<Reports />)} />
 
       </Routes>
     </BrowserRouter>
