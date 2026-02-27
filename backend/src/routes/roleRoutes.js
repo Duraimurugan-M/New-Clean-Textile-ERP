@@ -4,6 +4,8 @@ import {
   getRoles,
   updateRole,
   deleteRole,
+  getRoleTemplates,
+  seedDefaultRoles,
 } from "../controllers/roleController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -16,6 +18,20 @@ router.post(
   authMiddleware,
   checkPermission("settings", "manageRoles"),
   createRole
+);
+
+router.get(
+  "/templates",
+  authMiddleware,
+  checkPermission("settings", "manageRoles"),
+  getRoleTemplates
+);
+
+router.post(
+  "/seed-defaults",
+  authMiddleware,
+  checkPermission("settings", "manageRoles"),
+  seedDefaultRoles
 );
 
 router.get(

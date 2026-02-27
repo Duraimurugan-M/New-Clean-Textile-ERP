@@ -2,7 +2,6 @@ import Purchase from "../models/Purchase.js";
 import { addStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
-import QueryFeatures from "../utils/queryFeatures.js";
 import mongoose from "mongoose";
 
 export const createPurchase = async (req, res) => {
@@ -10,8 +9,9 @@ export const createPurchase = async (req, res) => {
   try {
     const { supplier, materialType, lotNumber, quantity, unit, ratePerUnit } =
       req.body;
+    const normalizedLot = String(lotNumber || "").trim();
 
-    if (!supplier || !materialType || !lotNumber)
+    if (!supplier || !materialType || !normalizedLot)
       return res.status(400).json({ message: "All fields required" });
 
     if (Number(quantity) <= 0)
@@ -22,7 +22,7 @@ export const createPurchase = async (req, res) => {
 
     session.startTransaction();
 
-    const existingLot = await Inventory.findOne({ lotNumber }).session(session);
+    const existingLot = await Inventory.findOne({ lotNumber: normalizedLot }).session(session);
     if (existingLot) {
       await session.abortTransaction();
       return res.status(400).json({ message: "Lot already exists" });
@@ -33,7 +33,7 @@ export const createPurchase = async (req, res) => {
     const [purchase] = await Purchase.create([{
       supplier,
       materialType,
-      lotNumber,
+      lotNumber: normalizedLot,
       quantity,
       unit,
       ratePerUnit,
@@ -43,7 +43,7 @@ export const createPurchase = async (req, res) => {
 
     await addStock({
       materialType,
-      lotNumber,
+      lotNumber: normalizedLot,
       quantity,
       unit,
       ratePerUnit,
@@ -51,11 +51,11 @@ export const createPurchase = async (req, res) => {
       createdBy: req.user._id,
     }, session);
 
-    const stockAfter = await Inventory.findOne({ materialType, lotNumber }).session(session);
+    const stockAfter = await Inventory.findOne({ materialType, lotNumber: normalizedLot }).session(session);
 
     await StockMovement.create([{
       materialType,
-      lotNumber,
+      lotNumber: normalizedLot,
       movementType: "IN",
       module: "Purchase",
       quantity,
@@ -84,23 +84,30 @@ export const createPurchase = async (req, res) => {
 
 export const getPurchases = async (req, res) => {
   try {
-    const totalRecords = await Purchase.countDocuments();
+    const queryObj = { ...req.query };
+    const page = Number(queryObj.page) || 1;
+    const limit = Number(queryObj.limit) || 10;
+    const sortBy = queryObj.sortBy || "createdAt";
+    const order = queryObj.order === "asc" ? 1 : -1;
+    const search = String(queryObj.search || "").trim();
 
-    const features = new QueryFeatures(Purchase, req.query)
-      .filter()
-      .search(["lotNumber"])
-      .sort()
-      .paginate();
+    const filters = {};
+    if (queryObj.materialType) filters.materialType = queryObj.materialType;
+    if (search) filters.lotNumber = { $regex: search, $options: "i" };
 
-    const purchases = await features.query
+    const totalRecords = await Purchase.countDocuments(filters);
+    const purchases = await Purchase.find(filters)
+      .sort({ [sortBy]: order })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .populate("supplier", "supplierName phone")
       .populate("purchasedBy", "name email");
 
     res.json({
       success: true,
       data: purchases,
-      currentPage: features.page,
-      totalPages: Math.ceil(totalRecords / features.limit),
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
     });
   } catch (error) {

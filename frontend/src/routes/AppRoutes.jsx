@@ -33,6 +33,8 @@ import AddAccountEntry from "../pages/accounts/AddAccountEntry";
 import Reports from "../pages/reports/Reports";
 import ProductionPlanList from "../pages/productionPlan/ProductionPlanList";
 import AddProductionPlan from "../pages/productionPlan/AddProductionPlan";
+import RolesSettings from "../pages/settings/RolesSettings";
+import UsersSettings from "../pages/settings/UsersSettings";
 
 const AppRoutes = () => {
   const withLayout = (element) => (
@@ -109,6 +111,10 @@ const AppRoutes = () => {
         <Route path="/accounts/add" element={withLayout(<AddAccountEntry />)} />
 
         <Route path="/reports" element={withLayout(<Reports />)} />
+
+        <Route path="/settings/roles" element={withLayout(<RolesSettings />)} />
+
+        <Route path="/settings/users" element={withLayout(<UsersSettings />)} />
 
       </Routes>
     </BrowserRouter>

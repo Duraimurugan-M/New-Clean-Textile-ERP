@@ -51,7 +51,7 @@ const [formData, setFormData] = useState({
       navigate("/purchase");
     } catch (error) {
       console.error(error.response?.data || error.message);
-      alert("Failed to create purchase");
+      alert(error.response?.data?.message || "Failed to create purchase");
     } finally {
       setLoading(false);
     }

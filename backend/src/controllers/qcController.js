@@ -1,6 +1,5 @@
 import QC from "../models/QC.js";
 import Inventory from "../models/Inventory.js";
-import QueryFeatures from "../utils/queryFeatures.js";
 
 export const createQC = async (req, res) => {
   try {
@@ -53,22 +52,41 @@ export const createQC = async (req, res) => {
 
 export const getQCRecords = async (req, res) => {
   try {
-    const totalRecords = await QC.countDocuments();
+    const queryObj = { ...req.query };
+    const page = Number(queryObj.page) || 1;
+    const limit = Number(queryObj.limit) || 10;
+    const sortBy = queryObj.sortBy || "createdAt";
+    const order = queryObj.order === "asc" ? 1 : -1;
+    const search = String(queryObj.search || "").trim();
+    const requestedStatus = queryObj.status;
 
-    const features = new QueryFeatures(QC, req.query)
-      .filter()
-      .search(["lotNumber", "grade"])
-      .sort()
-      .paginate();
+    const filters = {};
+    if (requestedStatus) {
+      if (requestedStatus === "Pending") {
+        filters.status = { $ne: "Approved" };
+      } else {
+        filters.status = requestedStatus;
+      }
+    }
+    if (search) {
+      filters.$or = [
+        { lotNumber: { $regex: search, $options: "i" } },
+        { grade: { $regex: search, $options: "i" } },
+      ];
+    }
 
-    const qc = await features.query
+    const totalRecords = await QC.countDocuments(filters);
+    const qc = await QC.find(filters)
+      .sort({ [sortBy]: order })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .populate("inspectedBy", "name");
 
     res.json({
       success: true,
       data: qc,
-      currentPage: features.page,
-      totalPages: Math.ceil(totalRecords / features.limit),
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
     });
   } catch (error) {

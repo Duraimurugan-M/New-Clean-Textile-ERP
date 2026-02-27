@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./InventoryList.module.css";
@@ -8,11 +8,14 @@ const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 🔹 Fetch inventory with server-side pagination
   const fetchInventory = async (params) => {
     try {
-      const query = new URLSearchParams(params).toString();
+      const merged = new URLSearchParams(location.search);
+      Object.entries(params || {}).forEach(([key, value]) => merged.set(key, value));
+      const query = merged.toString();
       const { data } = await API.get(`/inventory?${query}`);
 
       setInventory(data.data || []);

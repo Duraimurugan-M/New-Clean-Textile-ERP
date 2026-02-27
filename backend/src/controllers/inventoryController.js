@@ -1,11 +1,8 @@
 import Inventory from "../models/Inventory.js";
 
 import {
-  addStock,
-  getAllStock
+  addStock
 } from "../services/inventoryService.js";
-
-import QueryFeatures from "../utils/queryFeatures.js";
 
 // ➕ Add Stock
 export const createStock = async (req, res) => {
@@ -28,21 +25,40 @@ export const createStock = async (req, res) => {
 // 📦 Get All Stock
 export const getInventory = async (req, res) => {
   try {
-    const totalRecords = await Inventory.countDocuments();
+    const queryObj = { ...req.query };
+    const page = Number(queryObj.page) || 1;
+    const limit = Number(queryObj.limit) || 10;
+    const sortBy = queryObj.sortBy || "createdAt";
+    const order = queryObj.order === "asc" ? 1 : -1;
+    const search = String(queryObj.search || "").trim();
 
-    const features = new QueryFeatures(Inventory, req.query)
-      .filter()
-      .search(["lotNumber"])
-      .sort()
-      .paginate();
+    delete queryObj.page;
+    delete queryObj.limit;
+    delete queryObj.sortBy;
+    delete queryObj.order;
+    delete queryObj.search;
 
-    const inventory = await features.query;
+    if (queryObj.lowStock !== undefined) {
+      delete queryObj.lowStock;
+      queryObj.quantity = { $lt: 50 };
+    }
+
+    const filters = { ...queryObj };
+    if (search) {
+      filters.lotNumber = { $regex: search, $options: "i" };
+    }
+
+    const totalRecords = await Inventory.countDocuments(filters);
+    const inventory = await Inventory.find(filters)
+      .sort({ [sortBy]: order })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.json({
       success: true,
       data: inventory,
-      currentPage: features.page,
-      totalPages: Math.ceil(totalRecords / features.limit),
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
     });
   } catch (error) {

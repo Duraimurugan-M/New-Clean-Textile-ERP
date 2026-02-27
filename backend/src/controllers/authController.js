@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Role from "../models/Role.js";
 // import Role from "../models/Role.js";
 
 // 🔹 Generate JWT Token
@@ -26,9 +27,18 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "Name, email, password and role are required" });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
+    }
+
+    const roleExists = await Role.findById(role);
+    if (!roleExists) {
+      return res.status(400).json({ message: "Invalid role selected" });
     }
 
     const user = await User.create({

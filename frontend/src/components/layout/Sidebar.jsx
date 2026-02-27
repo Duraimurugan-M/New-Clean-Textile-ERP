@@ -13,7 +13,6 @@ import {
   FaTruck,
   FaTruckLoading,
   FaIndustry,
-  FaUserFriends,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import API from "../../api/axios";
@@ -21,6 +20,8 @@ import API from "../../api/axios";
 const Sidebar = ({ onNavigate }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [permissions, setPermissions] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleNavigate = () => {
     if (onNavigate) onNavigate();
@@ -37,22 +38,42 @@ const Sidebar = ({ onNavigate }) => {
     }
   };
 
+  useEffect(() => {
+    const loadPermissions = async () => {
+      try {
+        const { data } = await API.get("/auth/me");
+        const role = data?.user?.role;
+        setPermissions(role?.permissions || {});
+        setIsAdmin(role?.name === "Admin");
+      } catch {
+        setPermissions({});
+        setIsAdmin(false);
+      }
+    };
+    loadPermissions();
+  }, []);
+
+  const hasPermission = (module, action) => {
+    if (isAdmin) return true;
+    return Boolean(permissions?.[module]?.[action]);
+  };
+
   const categories = useMemo(
     () => [
       {
         key: "dashboard",
         label: "Dashboard",
         icon: <FaTachometerAlt />,
-        items: [{ to: "/dashboard", label: "Overview" }],
+        items: [{ to: "/dashboard", label: "Overview", can: ["dashboard", "view"] }],
       },
       {
         key: "sales",
         label: "Sales",
         icon: <FaShoppingCart />,
         items: [
-          { to: "/sales-orders", label: "Sales Orders" },
-          { to: "/sales", label: "Sales Invoices" },
-          { to: "/customer", label: "Customers" },
+          { to: "/sales-orders", label: "Sales Orders", can: ["salesOrder", "view"] },
+          { to: "/sales", label: "Sales Invoices", can: ["sales", "view"] },
+          { to: "/customer", label: "Customers", can: ["sales", "view"] },
         ],
       },
       {
@@ -60,8 +81,8 @@ const Sidebar = ({ onNavigate }) => {
         label: "Purchase",
         icon: <FaShoppingCart />,
         items: [
-          { to: "/purchase", label: "Purchases" },
-          { to: "/supplier", label: "Suppliers" },
+          { to: "/purchase", label: "Purchases", can: ["purchase", "view"] },
+          { to: "/supplier", label: "Suppliers", can: ["purchase", "view"] },
         ],
       },
       {
@@ -69,9 +90,9 @@ const Sidebar = ({ onNavigate }) => {
         label: "Production",
         icon: <FaIndustry />,
         items: [
-          { to: "/production", label: "Production Entry" },
-          { to: "/production-plans", label: "Production Planning" },
-          { to: "/beams", label: "Beam Management" },
+          { to: "/production", label: "Production Entry", can: ["production", "view"] },
+          { to: "/production-plans", label: "Production Planning", can: ["production", "view"] },
+          { to: "/beams", label: "Beam Management", can: ["beam", "view"] },
         ],
       },
       {
@@ -79,8 +100,8 @@ const Sidebar = ({ onNavigate }) => {
         label: "Inventory",
         icon: <FaBox />,
         items: [
-          { to: "/inventory", label: "Stock" },
-          { to: "/stock-movement", label: "Stock Movement" },
+          { to: "/inventory", label: "Stock", can: ["inventory", "view"] },
+          { to: "/stock-movement", label: "Stock Movement", can: ["reports", "view"] },
         ],
       },
       {
@@ -88,52 +109,66 @@ const Sidebar = ({ onNavigate }) => {
         label: "Job Work",
         icon: <FaTruckLoading />,
         items: [
-          { to: "/job-work", label: "Job Work Register" },
-          { to: "/vendors", label: "Vendors" },
+          { to: "/job-work", label: "Job Work Register", can: ["jobWork", "view"] },
+          { to: "/vendors", label: "Vendors", can: ["jobWork", "view"] },
         ],
       },
       {
         key: "quality",
         label: "Quality Control",
         icon: <FaCogs />,
-        items: [{ to: "/qc", label: "QC Records" }],
+        items: [{ to: "/qc", label: "QC Records", can: ["qc", "view"] }],
       },
       {
         key: "dispatch",
         label: "Dispatch",
         icon: <FaTruck />,
-        items: [{ to: "/dispatch", label: "Dispatch Register" }],
+        items: [{ to: "/dispatch", label: "Dispatch Register", can: ["dispatch", "view"] }],
       },
       {
         key: "accounts",
         label: "Accounts",
         icon: <FaMoneyCheckAlt />,
         items: [
-          { to: "/accounts", label: "General Ledger" },
-          { to: "/accounts?tab=purchase", label: "Purchase Ledger" },
-          { to: "/accounts?tab=sales", label: "Sales Ledger" },
-          { to: "/accounts?tab=expense", label: "Expense Ledger" },
+          { to: "/accounts", label: "General Ledger", can: ["accounts", "view"] },
+          { to: "/accounts?tab=purchase", label: "Purchase Ledger", can: ["accounts", "view"] },
+          { to: "/accounts?tab=sales", label: "Sales Ledger", can: ["accounts", "view"] },
+          { to: "/accounts?tab=expense", label: "Expense Ledger", can: ["accounts", "view"] },
         ],
       },
       {
         key: "reports",
         label: "Reports",
         icon: <FaClipboardList />,
-        items: [{ to: "/reports", label: "Report Center" }],
+        items: [{ to: "/reports", label: "Report Center", can: ["reports", "view"] }],
       },
       {
         key: "settings",
         label: "Settings",
         icon: <FaCogs />,
-        items: [{ to: "/dashboard", label: "Role & Access (Soon)" }],
+        items: [
+          { to: "/settings/roles", label: "Role Access", can: ["settings", "manageRoles"] },
+          { to: "/settings/users", label: "Users", can: ["settings", "manageUsers"] },
+        ],
       },
     ],
     []
   );
 
+  const visibleCategories = categories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) => {
+        const [module, action] = item.can || [];
+        if (!module || !action) return true;
+        return hasPermission(module, action);
+      }),
+    }))
+    .filter((category) => category.items.length > 0);
+
   const detectOpen = () => {
     const path = location.pathname;
-    const found = categories.find((category) =>
+    const found = visibleCategories.find((category) =>
       category.items.some((item) => item.to.split("?")[0] === path)
     );
     return found ? found.key : "dashboard";
@@ -143,14 +178,14 @@ const Sidebar = ({ onNavigate }) => {
 
   useEffect(() => {
     setOpenCategory(detectOpen());
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, isAdmin, permissions]);
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.logo}> <span className={styles.span}>EMATIX</span> <br></br> TEXTILE ERP</div>
 
       <div className={styles.menu}>
-        {categories.map((category) => {
+        {visibleCategories.map((category) => {
           const isOpen = openCategory === category.key;
           return (
             <div key={category.key} className={styles.group}>

@@ -1,4 +1,5 @@
 import Role from "../models/Role.js";
+import { roleTemplates } from "../utils/roleTemplates.js";
 
 // 🔹 Create Role
 export const createRole = async (req, res) => {
@@ -78,6 +79,40 @@ export const deleteRole = async (req, res) => {
     res.json({
       success: true,
       message: "Role deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getRoleTemplates = async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      data: roleTemplates,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const seedDefaultRoles = async (req, res) => {
+  try {
+    const results = [];
+    for (const [name, permissions] of Object.entries(roleTemplates)) {
+      const existing = await Role.findOne({ name });
+      if (existing) {
+        results.push({ name, status: "exists" });
+        continue;
+      }
+      await Role.create({ name, permissions });
+      results.push({ name, status: "created" });
+    }
+
+    res.json({
+      success: true,
+      message: "Default roles processed",
+      data: results,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

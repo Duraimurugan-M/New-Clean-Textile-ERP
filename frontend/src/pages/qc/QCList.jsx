@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./QCList.module.css";
@@ -7,10 +7,13 @@ import styles from "./QCList.module.css";
 const QCList = () => {
   const [qcList, setQcList] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const location = useLocation();
 
   const fetchQC = async (params) => {
     try {
-      const query = new URLSearchParams(params).toString();
+      const merged = new URLSearchParams(location.search);
+      Object.entries(params || {}).forEach(([key, value]) => merged.set(key, value));
+      const query = merged.toString();
       const { data } = await API.get(`/qc?${query}`);
 
       setQcList(data.data);

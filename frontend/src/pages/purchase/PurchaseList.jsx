@@ -7,6 +7,7 @@ import styles from "./PurchaseList.module.css";
 const PurchaseList = () => {
   const [purchases, setPurchases] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [errorText, setErrorText] = useState("");
   const navigate = useNavigate();
 
   const fetchPurchases = async (params) => {
@@ -16,8 +17,10 @@ const PurchaseList = () => {
 
       setPurchases(data.data);
       setTotalPages(data.totalPages || 1);
+      setErrorText("");
     } catch (error) {
       console.error("Error fetching purchases", error);
+      setErrorText(error.response?.data?.message || "Failed to load purchases");
     }
   };
 
@@ -58,7 +61,9 @@ const PurchaseList = () => {
         totalPages={totalPages}
         onFetchData={fetchPurchases}
         searchField="lotNumber"
+        title="purchase-management"
       />
+      {errorText && <p style={{ color: "#b91c1c", marginTop: 10 }}>{errorText}</p>}
     </div>
   );
 };
