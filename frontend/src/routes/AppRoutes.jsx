@@ -35,6 +35,8 @@ import ProductionPlanList from "../pages/productionPlan/ProductionPlanList";
 import AddProductionPlan from "../pages/productionPlan/AddProductionPlan";
 import RolesSettings from "../pages/settings/RolesSettings";
 import UsersSettings from "../pages/settings/UsersSettings";
+import TodoList from "../pages/tools/TodoList";
+import Calendar from "../pages/tools/Calendar";
 
 const AppRoutes = () => {
   const withLayout = (element) => (
@@ -115,6 +117,8 @@ const AppRoutes = () => {
         <Route path="/settings/roles" element={withLayout(<RolesSettings />)} />
 
         <Route path="/settings/users" element={withLayout(<UsersSettings />)} />
+        <Route path="/tools/todo" element={withLayout(<TodoList />)} />
+        <Route path="/tools/calendar" element={withLayout(<Calendar />)} />
 
       </Routes>
     </BrowserRouter>

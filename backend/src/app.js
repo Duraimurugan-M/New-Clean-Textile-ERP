@@ -19,6 +19,8 @@ import beamRoutes from "./routes/beamRoutes.js";
 import dispatchRoutes from "./routes/dispatchRoutes.js";
 import accountsRoutes from "./routes/accountsRoutes.js";
 import reportsRoutes from "./routes/reportsRoutes.js";
+import todoRoutes from "./routes/todoRoutes.js";
+import calendarRoutes from "./routes/calendarRoutes.js";
 
 
 const app = express();
@@ -55,5 +57,7 @@ app.use("/api/beams", beamRoutes);
 app.use("/api/dispatch", dispatchRoutes);
 app.use("/api/accounts", accountsRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/tools/todos", todoRoutes);
+app.use("/api/tools/calendar", calendarRoutes);
 
 export default app;

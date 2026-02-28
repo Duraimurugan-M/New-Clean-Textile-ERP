@@ -1,0 +1,224 @@
+.container {
+  background: linear-gradient(165deg, #fffefb, #fffaf1);
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid #ebdfca;
+  box-shadow: 0 16px 36px rgba(24, 34, 42, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.header h2 {
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  background: linear-gradient(135deg, #0d3f3f 0%, #124846 48%, #1f5c59 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.monthNav button {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  cursor: pointer;
+}
+
+.monthNav span {
+  font-weight: 700;
+  color: #334155;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+}
+
+.calendarCard {
+  border: 1px solid #ebdfca;
+  border-radius: 12px;
+  background: #fffefb;
+  padding: 10px;
+}
+
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekCell {
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.blankCell {
+  min-height: 90px;
+}
+
+.dayCell {
+  border: 1px solid #e5ddd0;
+  border-radius: 10px;
+  min-height: 90px;
+  background: #fff;
+  text-align: left;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.dayNumber {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.badge {
+  align-self: flex-start;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 7px;
+  font-weight: 700;
+}
+
+.eventPreview {
+  font-size: 11px;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+}
+
+.today {
+  background: #f0fdfa;
+}
+
+.pastDay {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+.sidePanel {
+  border: 1px solid #ebdfca;
+  border-radius: 12px;
+  background: #fffefb;
+  padding: 12px;
+}
+
+.sidePanel h3 {
+  margin: 0 0 10px;
+}
+
+.form {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.form input,
+.form textarea {
+  border: 1px solid #ddd3c2;
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+  background: #fffefb;
+}
+
+.form textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.form button {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  cursor: pointer;
+}
+
+.eventsList {
+  display: grid;
+  gap: 8px;
+}
+
+.eventItem {
+  border: 1px solid #e5ddd0;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eventTitle {
+  margin: 0;
+  font-weight: 700;
+}
+
+.eventNotes {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.deleteBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 9px;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  cursor: pointer;
+  height: fit-content;
+}
+
+.empty {
+  color: #6b7280;
+}
+
+.error {
+  color: #b91c1c;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1050px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

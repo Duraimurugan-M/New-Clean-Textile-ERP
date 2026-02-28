@@ -13,6 +13,7 @@ import {
   FaTruck,
   FaTruckLoading,
   FaIndustry,
+  FaTools,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import API from "../../api/axios";
@@ -149,6 +150,15 @@ const Sidebar = ({ onNavigate }) => {
         items: [
           { to: "/settings/roles", label: "Role Access", can: ["settings", "manageRoles"] },
           { to: "/settings/users", label: "Users", can: ["settings", "manageUsers"] },
+        ],
+      },
+      {
+        key: "tools",
+        label: "Tools",
+        icon: <FaTools />,
+        items: [
+          { to: "/tools/todo", label: "Todo List" },
+          { to: "/tools/calendar", label: "Calendar" },
         ],
       },
     ],
