@@ -143,6 +143,15 @@ const Sidebar = ({ onNavigate }) => {
         icon: <FaClipboardList />,
         items: [{ to: "/reports", label: "Report Center", can: ["reports", "view"] }],
       },
+       {
+        key: "tools",
+        label: "Tools",
+        icon: <FaTools />,
+        items: [
+          { to: "/tools/todo", label: "Todo List" },
+          { to: "/tools/calendar", label: "Calendar" },
+        ],
+      },
       {
         key: "settings",
         label: "Settings",
@@ -150,15 +159,6 @@ const Sidebar = ({ onNavigate }) => {
         items: [
           { to: "/settings/roles", label: "Role Access", can: ["settings", "manageRoles"] },
           { to: "/settings/users", label: "Users", can: ["settings", "manageUsers"] },
-        ],
-      },
-      {
-        key: "tools",
-        label: "Tools",
-        icon: <FaTools />,
-        items: [
-          { to: "/tools/todo", label: "Todo List" },
-          { to: "/tools/calendar", label: "Calendar" },
         ],
       },
     ],
