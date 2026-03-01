@@ -7,6 +7,7 @@ import inventoryRoutes from "./routes/inventoryRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import productionRoutes from "./routes/productionRoutes.js";
 import productionPlanRoutes from "./routes/productionPlanRoutes.js";
+import bomRoutes from "./routes/bomRoutes.js";
 import salesRoutes from "./routes/salesRoutes.js";
 import salesOrderRoutes from "./routes/salesOrderRoutes.js";
 import supplierRoutes from "./routes/supplierRoutes.js";
@@ -26,7 +27,7 @@ import fileManagerRoutes from "./routes/fileManagerRoutes.js";
 
 const app = express();
 
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+const allowedOrigins = (process.env.FRONTEND_URL)
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -46,6 +47,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/purchase", purchaseRoutes);
 app.use("/api/production", productionRoutes);
 app.use("/api/production-plans", productionPlanRoutes);
+app.use("/api/bom", bomRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/sales-orders", salesOrderRoutes);
 app.use("/api/suppliers", supplierRoutes);

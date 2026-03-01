@@ -33,6 +33,8 @@ import AddAccountEntry from "../pages/accounts/AddAccountEntry";
 import Reports from "../pages/reports/Reports";
 import ProductionPlanList from "../pages/productionPlan/ProductionPlanList";
 import AddProductionPlan from "../pages/productionPlan/AddProductionPlan";
+import BOMList from "../pages/bom/BOMList";
+import AddBOM from "../pages/bom/AddBOM";
 import RolesSettings from "../pages/settings/RolesSettings";
 import UsersSettings from "../pages/settings/UsersSettings";
 import TodoList from "../pages/tools/TodoList";
@@ -70,6 +72,10 @@ const AppRoutes = () => {
         <Route path="/production-plans" element={withLayout(<ProductionPlanList />)} />
 
         <Route path="/production-plans/add" element={withLayout(<AddProductionPlan />)} />
+
+        <Route path="/bom" element={withLayout(<BOMList />)} />
+
+        <Route path="/bom/add" element={withLayout(<AddBOM />)} />
 
         <Route path="/sales" element={withLayout(<SalesList />)} />
 

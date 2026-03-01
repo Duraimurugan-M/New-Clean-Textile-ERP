@@ -35,49 +35,70 @@ const AddVendor = () => {
       <h2>Add Vendor</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          name="vendorName"
-          placeholder="Vendor Name"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Vendor Name</label>
+          <input
+            name="vendorName"
+            placeholder="Vendor Name"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="contactPerson"
-          placeholder="Contact Person"
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Contact Person</label>
+          <input
+            name="contactPerson"
+            placeholder="Contact Person"
+            onChange={handleChange}
+          />
+        </div>
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Phone</label>
+          <input
+            name="phone"
+            placeholder="Phone"
+            onChange={handleChange}
+          />
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+          />
+        </div>
 
-        <textarea
-          name="address"
-          placeholder="Address"
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Address</label>
+          <textarea
+            name="address"
+            placeholder="Address"
+            onChange={handleChange}
+          />
+        </div>
 
-        <select name="jobType" onChange={handleChange}>
-          <option value="Dyeing">Dyeing</option>
-          <option value="Warping">Warping</option>
-          <option value="Sizing">Sizing</option>
-          <option value="Finishing">Finishing</option>
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Job Type</label>
+          <select name="jobType" onChange={handleChange}>
+            <option value="Dyeing">Dyeing</option>
+            <option value="Warping">Warping</option>
+            <option value="Sizing">Sizing</option>
+            <option value="Finishing">Finishing</option>
+          </select>
+        </div>
 
-        <select name="status" onChange={handleChange}>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Status</label>
+          <select name="status" onChange={handleChange}>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
 
         <button type="submit" className={styles.submitBtn}>
           Create Vendor

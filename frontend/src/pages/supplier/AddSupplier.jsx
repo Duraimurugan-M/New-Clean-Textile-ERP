@@ -37,41 +37,56 @@ const AddSupplier = () => {
       <h2>Add Supplier</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          name="supplierName"
-          placeholder="Supplier Name"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Supplier Name</label>
+          <input
+            name="supplierName"
+            placeholder="Supplier Name"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="contactPerson"
-          placeholder="Contact Person"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Contact Person</label>
+          <input
+            name="contactPerson"
+            placeholder="Contact Person"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Phone</label>
+          <input
+            name="phone"
+            placeholder="Phone"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Email</label>
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="address"
-          placeholder="Address"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Address</label>
+          <input
+            name="address"
+            placeholder="Address"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
         <button type="submit">Create Supplier</button>
       </form>

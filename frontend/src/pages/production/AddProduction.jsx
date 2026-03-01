@@ -94,119 +94,155 @@ const inputLots = inventory.filter(
       <h2>Create Production</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Input Material */}
-        <select
-          name="processType"
-          value={form.processType}
-          onChange={handleChange}
-        >
-          <option value="Dyeing">Dyeing</option>
-          <option value="Bleaching">Bleaching</option>
-          <option value="Weaving">Weaving</option>
-          <option value="Washing">Washing</option>
-          <option value="Finishing">Finishing</option>
-          <option value="Other">Other</option>
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Process Type</label>
+          <select
+            name="processType"
+            value={form.processType}
+            onChange={handleChange}
+          >
+            <option value="Dyeing">Dyeing</option>
+            <option value="Bleaching">Bleaching</option>
+            <option value="Weaving">Weaving</option>
+            <option value="Washing">Washing</option>
+            <option value="Finishing">Finishing</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
 
-        <select
-          name="shift"
-          value={form.shift}
-          onChange={handleChange}
-        >
-          <option value="General">General</option>
-          <option value="A">Shift A</option>
-          <option value="B">Shift B</option>
-          <option value="C">Shift C</option>
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Shift</label>
+          <select
+            name="shift"
+            value={form.shift}
+            onChange={handleChange}
+          >
+            <option value="General">General</option>
+            <option value="A">Shift A</option>
+            <option value="B">Shift B</option>
+            <option value="C">Shift C</option>
+          </select>
+        </div>
 
-        <input
-          name="machineCode"
-          placeholder="Machine Code"
-          value={form.machineCode}
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Machine Code</label>
+          <input
+            name="machineCode"
+            placeholder="Machine Code"
+            value={form.machineCode}
+            onChange={handleChange}
+          />
+        </div>
 
-        <select
-          name="inputMaterialType"
-          value={form.inputMaterialType}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Input Material</option>
-          <option value="RawYarn">Raw Yarn</option>
-          <option value="DyedYarn">Dyed Yarn</option>
-          <option value="GreyFabric">Grey Fabric</option>
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Input Material Type</label>
+          <select
+            name="inputMaterialType"
+            value={form.inputMaterialType}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Input Material</option>
+            <option value="RawYarn">Raw Yarn</option>
+            <option value="DyedYarn">Dyed Yarn</option>
+            <option value="GreyFabric">Grey Fabric</option>
+          </select>
+        </div>
 
-        {/* Input Lot */}
-        <select
-          name="inputLotNumber"
-          value={form.inputLotNumber}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Input Lot</option>
-          {inputLots.map((lot) => (
-            <option key={lot._id} value={lot.lotNumber}>
-              {lot.lotNumber} (Available: {lot.quantity})
-            </option>
-          ))}
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Input Lot Number</label>
+          <select
+            name="inputLotNumber"
+            value={form.inputLotNumber}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Input Lot</option>
+            {inputLots.map((lot) => (
+              <option key={lot._id} value={lot.lotNumber}>
+                {lot.lotNumber} (Available: {lot.quantity})
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <input
-          name="inputQuantity"
-          type="number"
-          placeholder={`Available: ${availableQty}`}
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Input Quantity</label>
+          <input
+            name="inputQuantity"
+            type="number"
+            placeholder={`Available: ${availableQty}`}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        {/* Auto Output Material */}
-        <input
-          type="text"
-          value={form.outputMaterialType}
-          disabled
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Output Material Type</label>
+          <input
+            type="text"
+            value={form.outputMaterialType}
+            disabled
+          />
+        </div>
 
-        <input
-          name="outputLotNumber"
-          placeholder="Output Lot Number"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Output Lot Number</label>
+          <input
+            name="outputLotNumber"
+            placeholder="Output Lot Number"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="outputQuantity"
-          type="number"
-          placeholder="Output Quantity"
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Output Quantity</label>
+          <input
+            name="outputQuantity"
+            type="number"
+            placeholder="Output Quantity"
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="labourCost"
-          type="number"
-          placeholder="Labour Cost"
-          onChange={handleChange}
-        />
-        <input
-          name="machineCost"
-          type="number"
-          placeholder="Machine Cost"
-          onChange={handleChange}
-        />
-        <input
-          name="dyeChemicalCost"
-          type="number"
-          placeholder="Dye/Chemical Cost"
-          onChange={handleChange}
-        />
-        <input
-          name="otherCost"
-          type="number"
-          placeholder="Other Cost"
-          onChange={handleChange}
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Labour Cost</label>
+          <input
+            name="labourCost"
+            type="number"
+            placeholder="Labour Cost"
+            onChange={handleChange}
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Machine Cost</label>
+          <input
+            name="machineCost"
+            type="number"
+            placeholder="Machine Cost"
+            onChange={handleChange}
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Dye/Chemical Cost</label>
+          <input
+            name="dyeChemicalCost"
+            type="number"
+            placeholder="Dye/Chemical Cost"
+            onChange={handleChange}
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Other Cost</label>
+          <input
+            name="otherCost"
+            type="number"
+            placeholder="Other Cost"
+            onChange={handleChange}
+          />
+        </div>
 
         <button type="submit">Save Production</button>
       </form>

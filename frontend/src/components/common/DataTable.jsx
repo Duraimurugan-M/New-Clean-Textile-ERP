@@ -49,6 +49,7 @@ const DataTable = ({
     if (path.startsWith("/supplier")) return "supplier";
     if (path.startsWith("/vendors")) return "vendor";
     if (path.startsWith("/beams")) return "beam";
+    if (path.startsWith("/bom")) return "bom";
     return "";
   };
 

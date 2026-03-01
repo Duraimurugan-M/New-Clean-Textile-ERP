@@ -40,6 +40,13 @@ const roleSchema = new mongoose.Schema(
         delete: { type: Boolean, default: false },
       },
 
+      bom: {
+        view: { type: Boolean, default: false },
+        create: { type: Boolean, default: false },
+        edit: { type: Boolean, default: false },
+        delete: { type: Boolean, default: false },
+      },
+
       beam: {
         view: { type: Boolean, default: false },
         create: { type: Boolean, default: false },

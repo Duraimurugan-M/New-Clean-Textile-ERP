@@ -98,58 +98,68 @@ const AddSales = () => {
       <h2>Add Sale</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Customer */}
-        <select
-          name="customer"
-          value={form.customer}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Customer</option>
-          {customers.map((cust) => (
-            <option key={cust._id} value={cust._id}>
-              {cust.customerName}
-            </option>
-          ))}
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Customer</label>
+          <select
+            name="customer"
+            value={form.customer}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Customer</option>
+            {customers.map((cust) => (
+              <option key={cust._id} value={cust._id}>
+                {cust.customerName}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Material Fixed */}
-        <input type="text" value="FinishedFabric" disabled />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Material Type</label>
+          <input type="text" value="FinishedFabric" disabled />
+        </div>
 
-        {/* Lot Dropdown */}
-        <select
-          name="lotNumber"
-          value={form.lotNumber}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Approved Lot</option>
-          {lots.map((lot) => (
-            <option key={lot._id} value={lot.lotNumber}>
-              {lot.lotNumber} (Available: {lot.quantity})
-            </option>
-          ))}
-        </select>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Lot Number</label>
+          <select
+            name="lotNumber"
+            value={form.lotNumber}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Approved Lot</option>
+            {lots.map((lot) => (
+              <option key={lot._id} value={lot.lotNumber}>
+                {lot.lotNumber} (Available: {lot.quantity})
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Quantity */}
-        <input
-          type="number"
-          name="quantity"
-          placeholder={`Available: ${availableQty}`}
-          value={form.quantity}
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Quantity</label>
+          <input
+            type="number"
+            name="quantity"
+            placeholder={`Available: ${availableQty}`}
+            value={form.quantity}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        {/* Rate */}
-        <input
-          type="number"
-          name="ratePerUnit"
-          placeholder="Rate Per Unit"
-          value={form.ratePerUnit}
-          onChange={handleChange}
-          required
-        />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Rate Per Unit</label>
+          <input
+            type="number"
+            name="ratePerUnit"
+            placeholder="Rate Per Unit"
+            value={form.ratePerUnit}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
         <div style={{ fontWeight: "bold", fontSize: "15px" }}>
           Total: ₹{total}

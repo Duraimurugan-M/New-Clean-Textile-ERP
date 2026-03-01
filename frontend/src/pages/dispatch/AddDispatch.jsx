@@ -64,56 +64,89 @@ const AddDispatch = () => {
     <div className={styles.container}>
       <h2>Create Dispatch</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          name="dispatchNumber"
-          placeholder="Dispatch Number"
-          value={form.dispatchNumber}
-          onChange={handleChange}
-          required
-        />
-        <select name="salesOrder" value={form.salesOrder} onChange={handleChange}>
-          <option value="">Select Sales Order (Optional)</option>
-          {orders.map((order) => (
-            <option key={order._id} value={order._id}>
-              {order.orderNumber} - {order.status}
-            </option>
-          ))}
-        </select>
-        <select name="customer" value={form.customer} onChange={handleChange} required>
-          <option value="">Select Customer</option>
-          {customers.map((cust) => (
-            <option key={cust._id} value={cust._id}>
-              {cust.customerName}
-            </option>
-          ))}
-        </select>
-        <select name="lotNumber" value={form.lotNumber} onChange={handleChange} required>
-          <option value="">Select Lot</option>
-          {lots.map((lot) => (
-            <option key={lot._id} value={lot.lotNumber}>
-              {lot.lotNumber} (Available: {lot.quantity})
-            </option>
-          ))}
-        </select>
-        <input
-          name="quantity"
-          type="number"
-          placeholder="Dispatch Quantity"
-          value={form.quantity}
-          onChange={handleChange}
-          required
-        />
-        <input name="packingListNo" placeholder="Packing List No" onChange={handleChange} />
-        <input name="transportName" placeholder="Transport Name" onChange={handleChange} />
-        <input name="vehicleNumber" placeholder="Vehicle Number" onChange={handleChange} />
-        <input name="ewayBillNumber" placeholder="E-way Bill Number" onChange={handleChange} />
-        <input
-          name="expectedDeliveryDate"
-          type="date"
-          value={form.expectedDeliveryDate}
-          onChange={handleChange}
-        />
-        <input name="notes" placeholder="Notes" onChange={handleChange} />
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Dispatch Number</label>
+          <input
+            name="dispatchNumber"
+            placeholder="Dispatch Number"
+            value={form.dispatchNumber}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Sales Order</label>
+          <select name="salesOrder" value={form.salesOrder} onChange={handleChange}>
+            <option value="">Select Sales Order (Optional)</option>
+            {orders.map((order) => (
+              <option key={order._id} value={order._id}>
+                {order.orderNumber} - {order.status}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Customer</label>
+          <select name="customer" value={form.customer} onChange={handleChange} required>
+            <option value="">Select Customer</option>
+            {customers.map((cust) => (
+              <option key={cust._id} value={cust._id}>
+                {cust.customerName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Lot Number</label>
+          <select name="lotNumber" value={form.lotNumber} onChange={handleChange} required>
+            <option value="">Select Lot</option>
+            {lots.map((lot) => (
+              <option key={lot._id} value={lot.lotNumber}>
+                {lot.lotNumber} (Available: {lot.quantity})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Dispatch Quantity</label>
+          <input
+            name="quantity"
+            type="number"
+            placeholder="Dispatch Quantity"
+            value={form.quantity}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Packing List No</label>
+          <input name="packingListNo" placeholder="Packing List No" onChange={handleChange} />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Transport Name</label>
+          <input name="transportName" placeholder="Transport Name" onChange={handleChange} />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Vehicle Number</label>
+          <input name="vehicleNumber" placeholder="Vehicle Number" onChange={handleChange} />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>E-way Bill Number</label>
+          <input name="ewayBillNumber" placeholder="E-way Bill Number" onChange={handleChange} />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Expected Delivery Date</label>
+          <input
+            name="expectedDeliveryDate"
+            type="date"
+            value={form.expectedDeliveryDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          <label>Notes</label>
+          <input name="notes" placeholder="Notes" onChange={handleChange} />
+        </div>
         <button type="submit" className={styles.button}>
           Save Dispatch
         </button>

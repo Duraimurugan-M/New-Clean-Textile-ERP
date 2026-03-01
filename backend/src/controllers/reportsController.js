@@ -11,6 +11,7 @@ import Vendor from "../models/Vendor.js";
 import SalesOrder from "../models/SalesOrder.js";
 import ProductionPlan from "../models/ProductionPlan.js";
 import Beam from "../models/Beam.js";
+import BOM from "../models/BOM.js";
 import StockMovement from "../models/StockMovement.js";
 import LedgerEntry from "../models/LedgerEntry.js";
 import ExcelJS from "exceljs";
@@ -389,6 +390,19 @@ const moduleConfigs = {
       { key: "loomNumber", label: "Loom" },
       { key: "status", label: "Status" },
       { key: "createdAt", label: "Date", formatter: (row) => new Date(row.createdAt).toLocaleDateString() },
+    ],
+  },
+  bom: {
+    model: BOM,
+    columns: [
+      { key: "bomCode", label: "BOM Code" },
+      { key: "productName", label: "Product" },
+      { key: "productCode", label: "Product Code" },
+      { key: "outputMaterialType", label: "Output Material" },
+      { key: "outputQuantityPerBatch", label: "Output Qty/Batch" },
+      { key: "version", label: "Version" },
+      { key: "status", label: "Status" },
+      { key: "effectiveFrom", label: "Effective From", formatter: (row) => new Date(row.effectiveFrom).toLocaleDateString() },
     ],
   },
 };

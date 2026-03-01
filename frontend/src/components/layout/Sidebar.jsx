@@ -93,6 +93,7 @@ const Sidebar = ({ onNavigate }) => {
         items: [
           { to: "/production", label: "Production Entry", can: ["production", "view"] },
           { to: "/production-plans", label: "Production Planning", can: ["production", "view"] },
+          { to: "/bom", label: "BOM Master", can: ["bom", "view"] },
           { to: "/beams", label: "Beam Management", can: ["beam", "view"] },
         ],
       },
