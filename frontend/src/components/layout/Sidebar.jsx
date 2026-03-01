@@ -143,13 +143,14 @@ const Sidebar = ({ onNavigate }) => {
         icon: <FaClipboardList />,
         items: [{ to: "/reports", label: "Report Center", can: ["reports", "view"] }],
       },
-       {
+      {
         key: "tools",
         label: "Tools",
         icon: <FaTools />,
         items: [
           { to: "/tools/todo", label: "Todo List" },
           { to: "/tools/calendar", label: "Calendar" },
+          { to: "/tools/files", label: "File Manager" },
         ],
       },
       {

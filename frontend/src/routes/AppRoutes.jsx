@@ -37,6 +37,7 @@ import RolesSettings from "../pages/settings/RolesSettings";
 import UsersSettings from "../pages/settings/UsersSettings";
 import TodoList from "../pages/tools/TodoList";
 import Calendar from "../pages/tools/Calendar";
+import FileManager from "../pages/tools/FileManager";
 
 const AppRoutes = () => {
   const withLayout = (element) => (
@@ -119,6 +120,7 @@ const AppRoutes = () => {
         <Route path="/settings/users" element={withLayout(<UsersSettings />)} />
         <Route path="/tools/todo" element={withLayout(<TodoList />)} />
         <Route path="/tools/calendar" element={withLayout(<Calendar />)} />
+        <Route path="/tools/files" element={withLayout(<FileManager />)} />
 
       </Routes>
     </BrowserRouter>

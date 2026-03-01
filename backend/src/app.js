@@ -21,6 +21,7 @@ import accountsRoutes from "./routes/accountsRoutes.js";
 import reportsRoutes from "./routes/reportsRoutes.js";
 import todoRoutes from "./routes/todoRoutes.js";
 import calendarRoutes from "./routes/calendarRoutes.js";
+import fileManagerRoutes from "./routes/fileManagerRoutes.js";
 
 
 const app = express();
@@ -59,5 +60,6 @@ app.use("/api/accounts", accountsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/tools/todos", todoRoutes);
 app.use("/api/tools/calendar", calendarRoutes);
+app.use("/api/tools/files", fileManagerRoutes);
 
 export default app;
