@@ -1,20 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "../sales/SalesList.module.css";
 
+const getFilenameFromDisposition = (disposition, fallback) => {
+  if (!disposition) return fallback;
+  const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) return decodeURIComponent(utfMatch[1]).replace(/["']/g, "");
+  const basicMatch = disposition.match(/filename="?([^";]+)"?/i);
+  if (basicMatch?.[1]) return basicMatch[1];
+  return fallback;
+};
+
 const AccountsList = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [entries, setEntries] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [summary, setSummary] = useState({ pendingPayables: 0, pendingReceivables: 0 });
-  const [tab, setTab] = useState(new URLSearchParams(location.search).get("tab") || "all");
+  const tab = useMemo(() => new URLSearchParams(location.search).get("tab") || "all", [location.search]);
 
-  useEffect(() => {
-    setTab(new URLSearchParams(location.search).get("tab") || "all");
-  }, [location.search]);
+  const setTab = (nextTab) => {
+    const params = new URLSearchParams(location.search);
+    if (nextTab === "all") {
+      params.delete("tab");
+    } else {
+      params.set("tab", nextTab);
+    }
+    const query = params.toString();
+    navigate(`/accounts${query ? `?${query}` : ""}`);
+  };
+
+  const tabTitle = useMemo(() => {
+    if (tab === "purchase") return "PURCHASE LEDGER";
+    if (tab === "sales") return "SALES LEDGER";
+    if (tab === "expense") return "EXPENSE LEDGER";
+    return "ALL LEDGERS";
+  }, [tab]);
 
   const endpoint = useMemo(() => {
     if (tab === "purchase") return "/accounts/purchase-ledger";
@@ -49,17 +74,22 @@ const AccountsList = () => {
 
   const handleExport = async (format) => {
     try {
-      const { data } = await API.get(`/accounts/export?type=${tab}&format=${format}`, {
+      const response = await API.get(`/accounts/export?type=${tab}&format=${format}`, {
         responseType: "blob",
       });
-      const ext = format === "pdf" ? "pdf" : "csv";
+      const data = response.data;
+      const disposition = response.headers?.["content-disposition"];
+      const ext = format === "pdf" ? "pdf" : "xlsx";
       const blob = new Blob([data], {
-        type: format === "pdf" ? "application/pdf" : "text/csv",
+        type:
+          format === "pdf"
+            ? "application/pdf"
+            : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${tab}-ledger.${ext}`;
+      a.download = getFilenameFromDisposition(disposition, `${tab}-ledger.${ext}`);
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -87,19 +117,17 @@ const AccountsList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Accounts</h2>
+        <h2>{tabTitle}</h2>
         <Link to="/accounts/add" className={styles.addBtn}>
           + Add Entry
         </Link>
       </div>
 
-      <div style={{ marginBottom: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button className={styles.addBtn} onClick={() => setTab("all")} type="button">All</button>
-        <button className={styles.addBtn} onClick={() => setTab("purchase")} type="button">Purchase Ledger</button>
-        <button className={styles.addBtn} onClick={() => setTab("sales")} type="button">Sales Ledger</button>
-        <button className={styles.addBtn} onClick={() => setTab("expense")} type="button">Expense Ledger</button>
-        <button className={styles.addBtn} onClick={() => handleExport("excel")} type="button">Export Excel</button>
-        <button className={styles.addBtn} onClick={() => handleExport("pdf")} type="button">Export PDF</button>
+      <div style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button className={styles.addBtn} onClick={() => setTab("all")} type="button" style={tab === "all" ? { outline: "2px solid #ffffff55" } : undefined}>All</button>
+        <button className={styles.addBtn} onClick={() => setTab("purchase")} type="button" style={tab === "purchase" ? { outline: "2px solid #ffffff55" } : undefined}>Purchase Ledger</button>
+        <button className={styles.addBtn} onClick={() => setTab("sales")} type="button" style={tab === "sales" ? { outline: "2px solid #ffffff55" } : undefined}>Sales Ledger</button>
+        <button className={styles.addBtn} onClick={() => setTab("expense")} type="button" style={tab === "expense" ? { outline: "2px solid #ffffff55" } : undefined}>Expense Ledger</button>
       </div>
 
       <div style={{ marginBottom: 12, fontWeight: 700 }}>
@@ -115,6 +143,13 @@ const AccountsList = () => {
         totalPages={totalPages}
         onFetchData={fetchEntries}
         searchField="partyName"
+        showExportButtons={false}
+        rightActions={
+          <>
+            <button className={styles.addBtn} onClick={() => handleExport("excel")} type="button">Export Excel</button>
+            <button className={styles.addBtn} onClick={() => handleExport("pdf")} type="button">Export PDF</button>
+          </>
+        }
       />
     </div>
   );

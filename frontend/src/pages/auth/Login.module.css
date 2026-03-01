@@ -1,25 +1,61 @@
 .container {
+  position: relative;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background:
-    radial-gradient(700px 420px at 14% 20%, rgba(15, 118, 110, 0.17), transparent 55%),
-    radial-gradient(780px 460px at 86% 84%, rgba(217, 119, 6, 0.16), transparent 58%),
-    #f6f4ef;
+    radial-gradient(700px 420px at 14% 20%, var(--bg-radial-a), transparent 55%),
+    radial-gradient(780px 460px at 86% 84%, var(--bg-radial-b), transparent 58%),
+    var(--bg);
 }
 
 .card {
-  background: linear-gradient(170deg, #fffefb, #fff9ed);
+  background: linear-gradient(170deg, var(--surface-strong), var(--surface));
   padding: 40px;
   width: 360px;
   border-radius: 18px;
-  border: 1px solid #ebdfcc;
-  box-shadow: 0 28px 60px rgba(26, 35, 42, 0.16);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-strong);
   display: flex;
   flex-direction: column;
   gap: 18px;
-  animation: fadeRise 0.45s ease both;
+}
+
+.themeBtn {
+  position: fixed;
+  right: 16px;
+  top: 14px;
+  z-index: 20;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  min-width: 34px;
+  height: 34px;
+  padding: 0 9px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.themeBtn svg {
+  font-size: 17px;
+  display: block;
+  color: var(--text);
+}
+
+.themeBtnText {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.themeBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .title {
@@ -27,26 +63,27 @@
   font-weight: 800;
   text-align: center;
   margin-bottom: 4px;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .input {
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #ddd3c2;
+  border: 1px solid var(--line);
   outline: none;
-  background: #fffefb;
+  background: var(--surface-strong);
+  color: var(--text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
-  border-color: #0f766e;
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.13);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 24%, transparent);
 }
 
 .button {
   padding: 12px;
-  background: linear-gradient(135deg, #0f766e, #115e59);
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
   border: none;
   border-radius: 10px;
   color: white;
@@ -60,7 +97,7 @@
 }
 
 .error {
-  color: #b45309;
+  color: #ef4444;
   font-size: 14px;
   margin: 0;
   text-align: center;
@@ -68,6 +105,11 @@
 }
 
 @media (max-width: 768px) {
+  .themeBtn {
+    right: 12px;
+    top: 12px;
+  }
+
   .card {
     width: min(92vw, 360px);
     padding: 26px 20px;
@@ -76,17 +118,4 @@
   .title {
     font-size: 22px;
   }
-}
-
-/* Royal Heading Style */
-.header h2,
-.container h2,
-.title {
-  text-transform: uppercase;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  background: linear-gradient(135deg, #0d3f3f 0%, #124846 48%, #1f5c59 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }

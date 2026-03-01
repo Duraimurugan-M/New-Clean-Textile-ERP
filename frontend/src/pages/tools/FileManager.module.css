@@ -1,9 +1,41 @@
 .container {
-  background: linear-gradient(165deg, #fffefb, #fffaf1);
+  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
   padding: 22px;
   border-radius: 16px;
-  border: 1px solid #ebdfca;
-  box-shadow: 0 16px 36px rgba(24, 34, 42, 0.1);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero {
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  margin-bottom: 16px;
+  background:
+    radial-gradient(460px 180px at 0% 0%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 68%),
+    linear-gradient(165deg, var(--surface-strong), var(--surface));
+}
+
+.kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .header {
@@ -11,13 +43,8 @@
 }
 
 .header h2 {
-  text-transform: uppercase;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  background: linear-gradient(135deg, #0d3f3f 0%, #124846 48%, #1f5c59 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text);
+  margin: 0;
 }
 
 .form {
@@ -44,9 +71,10 @@
 .filterBar input,
 .filterBar select {
   width: 100%;
-  border: 1px solid #ddd3c2;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fffefb;
+  background: var(--surface-strong);
+  color: var(--text);
   padding: 10px 12px;
   outline: none;
 }
@@ -71,7 +99,7 @@
   padding: 10px 12px;
   color: #fff;
   font-weight: 700;
-  background: linear-gradient(135deg, #0f766e, #115e59);
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
   cursor: pointer;
 }
 
@@ -93,7 +121,7 @@
 }
 
 .meta {
-  color: #64748b;
+  color: var(--text-muted);
   margin: 8px 0 10px;
   font-size: 13px;
 }
@@ -110,22 +138,22 @@
 
 .table th,
 .table td {
-  border: 1px solid #ebdfca;
+  border: 1px solid var(--line);
   padding: 9px 10px;
   text-align: left;
   vertical-align: top;
 }
 
 .table th {
-  background: #f7f2e8;
-  color: #334155;
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 13px;
   font-weight: 800;
 }
 
 .table td {
   font-size: 13px;
-  color: #334155;
+  color: var(--text);
 }
 
 .actions {
@@ -155,7 +183,7 @@
 
 .empty {
   text-align: center;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 @media (max-width: 960px) {

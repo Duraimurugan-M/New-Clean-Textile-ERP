@@ -3,6 +3,8 @@ import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
 import QC from "../models/QC.js";
+import LedgerEntry from "../models/LedgerEntry.js";
+import Customer from "../models/Customer.js";
 import QueryFeatures from "../utils/queryFeatures.js";
 import mongoose from "mongoose";
 
@@ -79,6 +81,7 @@ export const createSale = async (req, res) => {
     }).session(session);
 
     const totalAmount = qty * rate;
+    const customerDoc = await Customer.findById(customer).session(session);
 
     const [sale] = await Sales.create([{
       customer,
@@ -102,6 +105,27 @@ export const createSale = async (req, res) => {
       referenceId: sale._id,
       performedBy: req.user._id,
     }], { session });
+
+    await LedgerEntry.create(
+      [
+        {
+          entryType: "SalesInvoice",
+          partyType: "Customer",
+          partyName: customerDoc?.customerName || "Customer",
+          referenceType: "Sales",
+          referenceId: sale._id,
+          taxableAmount: totalAmount,
+          gstAmount: 0,
+          amount: totalAmount,
+          debit: 0,
+          credit: totalAmount,
+          status: "Pending",
+          notes: `Auto entry from sales ${lotNumber}`,
+          createdBy: req.user._id,
+        },
+      ],
+      { session }
+    );
 
     await session.commitTransaction();
 

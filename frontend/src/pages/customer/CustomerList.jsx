@@ -31,9 +31,17 @@ const CustomerList = () => {
 
   return (
     <div className={styles.pageWrapper}>
+      <div className={styles.hero}>
+        <div>
+          <p className={styles.kicker}>Sales Foundation</p>
+          <h1 className={styles.title}>Customer Management</h1>
+          <p className={styles.subtitle}>Manage customer profiles for order flow, dispatch commitment, and billing.</p>
+        </div>
+      </div>
+
       <div className={styles.card}>
         <div className={styles.header}>
-          <h2>Customer Management</h2>
+          <h2>Customer Directory</h2>
           <button
             className={styles.addBtn}
             onClick={() => navigate("/customer/add")}

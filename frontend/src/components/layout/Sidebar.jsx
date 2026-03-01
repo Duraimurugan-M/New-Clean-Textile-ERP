@@ -180,7 +180,10 @@ const Sidebar = ({ onNavigate }) => {
   const detectOpen = () => {
     const path = location.pathname;
     const found = visibleCategories.find((category) =>
-      category.items.some((item) => item.to.split("?")[0] === path)
+      category.items.some((item) => {
+        const basePath = item.to.split("?")[0];
+        return path === basePath || path.startsWith(`${basePath}/`);
+      })
     );
     return found ? found.key : "dashboard";
   };
@@ -202,7 +205,9 @@ const Sidebar = ({ onNavigate }) => {
             <div key={category.key} className={styles.group}>
               <button
                 type="button"
-                className={styles.groupBtn}
+                className={`${styles.groupBtn} ${styles[`groupBtn_${category.key}`] || ""} ${
+                  isOpen ? styles.groupBtnOpen : ""
+                }`}
                 onClick={() => setOpenCategory(isOpen ? "" : category.key)}
               >
                 <span className={styles.groupLabel}>
@@ -214,16 +219,34 @@ const Sidebar = ({ onNavigate }) => {
 
               {isOpen && (
                 <div className={styles.subMenu}>
-                  {category.items.map((item) => (
+                  {(() => {
+                    const fullCurrentPath = `${location.pathname}${location.search}`;
+                    const hasExactQueryMatch = category.items.some((entry) => {
+                      if (!entry.to.includes("?")) return false;
+                      return fullCurrentPath === entry.to;
+                    });
+
+                    return category.items.map((item) => {
+                    const itemPath = item.to.split("?")[0];
+                    const hasQuery = item.to.includes("?");
+                    const isItemActive = hasQuery
+                      ? fullCurrentPath === item.to
+                      : hasExactQueryMatch && location.pathname === itemPath
+                      ? false
+                      : location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
+
+                    return (
                     <NavLink
                       key={item.to}
                       to={item.to}
                       onClick={handleNavigate}
-                      className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.active : ""}`}
+                      className={`${styles.subNavItem} ${isItemActive ? styles.active : ""}`}
                     >
                       {item.label}
                     </NavLink>
-                  ))}
+                    );
+                    });
+                  })()}
                 </div>
               )}
             </div>

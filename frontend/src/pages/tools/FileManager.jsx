@@ -112,8 +112,16 @@ const FileManager = () => {
 
   return (
     <div className={styles.container}>
+      <div className={styles.hero}>
+        <div>
+          <p className={styles.kicker}>Tools Workspace</p>
+          <h1 className={styles.title}>File Manager</h1>
+          <p className={styles.subtitle}>Store purchase bills, dispatch copies, and QC documents in Cloudinary.</p>
+        </div>
+      </div>
+
       <div className={styles.header}>
-        <h2>File Manager</h2>
+        <h2>Document Vault</h2>
       </div>
 
       <form className={styles.form} onSubmit={handleUpload}>

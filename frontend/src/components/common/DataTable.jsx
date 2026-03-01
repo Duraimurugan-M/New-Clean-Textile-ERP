@@ -1,5 +1,16 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import styles from "./DataTable.module.css";
+import API from "../../api/axios";
+
+const getFilenameFromDisposition = (disposition, fallback) => {
+  if (!disposition) return fallback;
+  const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) return decodeURIComponent(utfMatch[1]).replace(/["']/g, "");
+  const basicMatch = disposition.match(/filename="?([^";]+)"?/i);
+  if (basicMatch?.[1]) return basicMatch[1];
+  return fallback;
+};
 
 const DataTable = ({
   columns,
@@ -9,7 +20,10 @@ const DataTable = ({
   onFetchData,
   searchField = "",
   title = "table-data",
+  showExportButtons = true,
+  rightActions = null,
 }) => {
+  const location = useLocation();
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,6 +32,25 @@ const DataTable = ({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const onFetchDataRef = useRef(onFetchData);
   const lastQueryRef = useRef("");
+
+  const getExportModuleFromPath = () => {
+    const path = location.pathname || "";
+    if (path.startsWith("/purchase")) return "purchase";
+    if (path.startsWith("/sales-orders")) return "salesorder";
+    if (path.startsWith("/sales")) return "sales";
+    if (path.startsWith("/inventory")) return "inventory";
+    if (path.startsWith("/production-plans")) return "productionplan";
+    if (path.startsWith("/production")) return "production";
+    if (path.startsWith("/qc")) return "qc";
+    if (path.startsWith("/dispatch")) return "dispatch";
+    if (path.startsWith("/job-work")) return "jobwork";
+    if (path.startsWith("/stock-movement")) return "stockmovement";
+    if (path.startsWith("/customer")) return "customer";
+    if (path.startsWith("/supplier")) return "supplier";
+    if (path.startsWith("/vendors")) return "vendor";
+    if (path.startsWith("/beams")) return "beam";
+    return "";
+  };
 
   useEffect(() => {
     onFetchDataRef.current = onFetchData;
@@ -56,7 +89,41 @@ const DataTable = ({
     setOrder(newOrder);
   };
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
+    const moduleKey = getExportModuleFromPath();
+    if (serverMode && moduleKey) {
+      try {
+        const params = lastQueryRef.current ? JSON.parse(lastQueryRef.current) : {};
+        const query = new URLSearchParams({
+          module: moduleKey,
+          format: "excel",
+          ...Object.fromEntries(
+            Object.entries(params || {}).map(([k, v]) => [k, String(v)])
+          ),
+        }).toString();
+
+        const response = await API.get(`/reports/module-export?${query}`, {
+          responseType: "blob",
+        });
+        const blobData = response.data;
+        const disposition = response.headers?.["content-disposition"];
+
+        const blob = new Blob([blobData], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = getFilenameFromDisposition(disposition, `${moduleKey}-report.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+        return;
+      } catch (error) {
+        console.error("Server export excel failed", error);
+      }
+    }
+
     const headers = columns.map((col) => col.label);
     const rows = data.map((row) =>
       columns.map((col) => {
@@ -81,7 +148,39 @@ const DataTable = ({
     URL.revokeObjectURL(link.href);
   };
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
+    const moduleKey = getExportModuleFromPath();
+    if (serverMode && moduleKey) {
+      try {
+        const params = lastQueryRef.current ? JSON.parse(lastQueryRef.current) : {};
+        const query = new URLSearchParams({
+          module: moduleKey,
+          format: "pdf",
+          ...Object.fromEntries(
+            Object.entries(params || {}).map(([k, v]) => [k, String(v)])
+          ),
+        }).toString();
+
+        const response = await API.get(`/reports/module-export?${query}`, {
+          responseType: "blob",
+        });
+        const blobData = response.data;
+        const disposition = response.headers?.["content-disposition"];
+
+        const blob = new Blob([blobData], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = getFilenameFromDisposition(disposition, `${moduleKey}-report.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+        return;
+      } catch (error) {
+        console.error("Server export pdf failed", error);
+      }
+    }
+
     const win = window.open("", "_blank");
     if (!win) return;
     const headerHtml = columns.map((col) => `<th>${col.label}</th>`).join("");
@@ -124,58 +223,71 @@ const DataTable = ({
 
   return (
     <div className={styles.container}>
-      {searchField && (
-        <input
-          type="text"
-          placeholder={`Search by ${searchField}`}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className={styles.search}
-        />
+      {(searchField || rightActions || showExportButtons) && (
+        <div className={styles.toolbar}>
+          {searchField ? (
+            <input
+              type="text"
+              placeholder={`Search by ${searchField}`}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className={styles.search}
+            />
+          ) : (
+            <div />
+          )}
+
+          <div className={styles.toolbarActions}>
+            {rightActions}
+            {showExportButtons && (
+              <>
+                <button type="button" onClick={exportExcel}>Export Excel</button>
+                <button type="button" onClick={exportPdf}>Export PDF</button>
+              </>
+            )}
+          </div>
+        </div>
       )}
 
-      <div style={{ marginBottom: 10, display: "flex", gap: 8 }}>
-        <button type="button" onClick={exportExcel}>Export Excel</button>
-        <button type="button" onClick={exportPdf}>Export PDF</button>
-      </div>
-
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                onClick={() => handleSort(col.key)}
-                className={styles.sortable}
-              >
-                {col.label}
-                {sortBy === col.key && (order === "asc" ? " ▲" : " ▼")}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {data.length === 0 ? (
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={columns.length} className={styles.noData}>
-                No data found
-              </td>
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  onClick={() => handleSort(col.key)}
+                  className={styles.sortable}
+                >
+                  {col.label}
+                  {sortBy === col.key && (order === "asc" ? " ▲" : " ▼")}
+                </th>
+              ))}
             </tr>
-          ) : (
-            data.map((row) => (
-              <tr key={row._id}>
-                {columns.map((col) => (
-                  <td key={col.key}>{col.render ? col.render(row) : row[col.key]}</td>
-                ))}
+          </thead>
+
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className={styles.noData}>
+                  No data found
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              data.map((row) => (
+                <tr key={row._id}>
+                  {columns.map((col) => (
+                    <td key={col.key}>{col.render ? col.render(row) : row[col.key]}</td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <div className={styles.pagination}>
         <div>

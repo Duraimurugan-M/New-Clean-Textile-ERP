@@ -1,6 +1,22 @@
 import LedgerEntry from "../models/LedgerEntry.js";
 import QueryFeatures from "../utils/queryFeatures.js";
-import { textLinesToSimplePdfBuffer, toCsv } from "../utils/exportUtils.js";
+import ExcelJS from "exceljs";
+import PDFDocument from "pdfkit";
+
+const formatDateTime = (value) => {
+  if (!value) return "-";
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return "-";
+  return dt.toLocaleString();
+};
+
+const fileTimestamp = () => {
+  const now = new Date();
+  const pad = (v) => String(v).padStart(2, "0");
+  return `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}-${pad(
+    now.getHours()
+  )}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+};
 
 export const createLedgerEntry = async (req, res) => {
   try {
@@ -159,29 +175,259 @@ export const exportLedger = async (req, res) => {
     const query = filterTypes.length ? { entryType: { $in: filterTypes } } : {};
     const rows = await LedgerEntry.find(query).sort({ createdAt: -1 }).limit(1000).lean();
 
+    const toDateTime = (value) => formatDateTime(value);
+
     if (format === "pdf") {
-      const lines = rows.map(
-        (row) =>
-          `${new Date(row.entryDate).toLocaleDateString()} | ${row.entryType} | ${row.partyName || "N/A"} | ${row.amount} | ${row.status}`
-      );
-      const buffer = textLinesToSimplePdfBuffer("Ledger Export", lines);
+      const doc = new PDFDocument({
+        size: "A4",
+        margin: 36,
+        info: {
+          Title: "Ledger Export",
+          Author: "Ematix Textile ERP",
+        },
+      });
+
+      const chunks = [];
+      doc.on("data", (chunk) => chunks.push(chunk));
+
+      const tableColumns = [
+        { key: "entryDate", label: "Entry Date", width: 64 },
+        { key: "entryType", label: "Type", width: 66 },
+        { key: "partyName", label: "Party", width: 96 },
+        { key: "amount", label: "Amount", width: 54 },
+        { key: "gstAmount", label: "GST", width: 44 },
+        { key: "status", label: "Status", width: 44 },
+      ];
+
+      const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+      const headerHeight = 62;
+      doc
+        .save()
+        .rect(doc.page.margins.left, doc.page.margins.top, pageWidth, headerHeight)
+        .fill("#0B5F87")
+        .restore();
+
+      doc
+        .fillColor("#FFFFFF")
+        .fontSize(17)
+        .font("Helvetica-Bold")
+        .text(`EMATIX TEXTILE ERP - ${type.toUpperCase()} LEDGER`, doc.page.margins.left + 12, doc.page.margins.top + 14);
+
+      doc
+        .fillColor("#EAF5FF")
+        .fontSize(10)
+        .font("Helvetica")
+        .text(`Generated: ${new Date().toLocaleString()}`, doc.page.margins.left + 12, doc.page.margins.top + 38);
+
+      let y = doc.page.margins.top + headerHeight + 18;
+
+      const drawTableHeader = () => {
+        let x = doc.page.margins.left;
+        doc.rect(x, y, pageWidth, 22).fill("#E7F1FA");
+        doc.fillColor("#0F172A").font("Helvetica-Bold").fontSize(9);
+        for (const col of tableColumns) {
+          doc.text(col.label, x + 4, y + 7, { width: col.width - 8, ellipsis: true });
+          x += col.width;
+        }
+        y += 22;
+      };
+
+      const drawRow = (row, index) => {
+        let x = doc.page.margins.left;
+        const rowHeight = 20;
+
+        if (y + rowHeight > doc.page.height - doc.page.margins.bottom) {
+          doc.addPage();
+          y = doc.page.margins.top;
+          drawTableHeader();
+        }
+
+        if (index % 2 === 0) {
+          doc.rect(x, y, pageWidth, rowHeight).fill("#F9FCFF");
+        }
+
+        doc.fillColor("#1F2937").font("Helvetica").fontSize(8.5);
+        const values = [
+          toDateTime(row.entryDate),
+          row.entryType || "-",
+          row.partyName || "N/A",
+          Number(row.amount || 0).toFixed(2),
+          Number(row.gstAmount || 0).toFixed(2),
+          row.status || "-",
+        ];
+
+        x = doc.page.margins.left;
+        values.forEach((value, i) => {
+          doc.text(String(value), x + 4, y + 6, { width: tableColumns[i].width - 8, ellipsis: true });
+          x += tableColumns[i].width;
+        });
+
+        y += rowHeight;
+      };
+
+      drawTableHeader();
+      rows.forEach((row, idx) => drawRow(row, idx));
+
+      const totalAmount = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+      const totalGST = rows.reduce((sum, row) => sum + Number(row.gstAmount || 0), 0);
+
+      y += 8;
+      if (y + 44 > doc.page.height - doc.page.margins.bottom) {
+        doc.addPage();
+        y = doc.page.margins.top;
+      }
+
+      doc.rect(doc.page.margins.left, y, pageWidth, 36).fill("#0F172A");
+      doc
+        .fillColor("#FFFFFF")
+        .font("Helvetica-Bold")
+        .fontSize(10)
+        .text(`Total Amount: Rs ${totalAmount.toFixed(2)}`, doc.page.margins.left + 10, y + 12);
+      doc
+        .fillColor("#FFFFFF")
+        .font("Helvetica-Bold")
+        .fontSize(10)
+        .text(`Total GST: Rs ${totalGST.toFixed(2)}`, doc.page.margins.left + 220, y + 12);
+
+      doc.end();
+
+      const buffer = await new Promise((resolve, reject) => {
+        doc.on("end", () => resolve(Buffer.concat(chunks)));
+        doc.on("error", reject);
+      });
+
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=\"${type}-ledger.pdf\"`);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=\"${type}-ledger-${fileTimestamp()}.pdf\"`
+      );
       return res.send(buffer);
     }
 
-    const csv = toCsv(rows, [
-      { key: "entryDate", label: "Date", value: (row) => new Date(row.entryDate).toISOString() },
-      { key: "entryType", label: "Entry Type" },
-      { key: "partyType", label: "Party Type" },
-      { key: "partyName", label: "Party Name" },
-      { key: "amount", label: "Amount" },
-      { key: "gstAmount", label: "GST" },
-      { key: "status", label: "Status" },
-    ]);
-    res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename=\"${type}-ledger.csv\"`);
-    return res.send(csv);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Ledger");
+
+    worksheet.mergeCells("A1:H1");
+    const titleCell = worksheet.getCell("A1");
+    titleCell.value = `EMATIX TEXTILE ERP - ${type.toUpperCase()} LEDGER`;
+    titleCell.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    titleCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF0B5F87" },
+    };
+    worksheet.getRow(1).height = 28;
+
+    worksheet.mergeCells("A2:H2");
+    const metaCell = worksheet.getCell("A2");
+    metaCell.value = `Generated on ${new Date().toLocaleString()}`;
+    metaCell.font = { size: 10, color: { argb: "FF334155" } };
+    metaCell.alignment = { horizontal: "left" };
+
+    const headerRowIndex = 4;
+    const headers = [
+      "Entry Date",
+      "Entry Type",
+      "Party Type",
+      "Party Name",
+      "Amount",
+      "GST",
+      "Status",
+      "Reference",
+    ];
+    const headerRow = worksheet.getRow(headerRowIndex);
+    headers.forEach((header, idx) => {
+      const cell = headerRow.getCell(idx + 1);
+      cell.value = header;
+      cell.font = { bold: true, color: { argb: "FF0F172A" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE7F1FA" },
+      };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFCBD5E1" } },
+        left: { style: "thin", color: { argb: "FFCBD5E1" } },
+        bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
+        right: { style: "thin", color: { argb: "FFCBD5E1" } },
+      };
+    });
+    headerRow.height = 22;
+
+    rows.forEach((row, index) => {
+      const excelRow = worksheet.addRow([
+        toDateTime(row.entryDate),
+        row.entryType || "",
+        row.partyType || "",
+        row.partyName || "",
+        Number(row.amount || 0),
+        Number(row.gstAmount || 0),
+        row.status || "",
+        row.referenceType || "",
+      ]);
+
+      excelRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFE2E8F0" } },
+          left: { style: "thin", color: { argb: "FFE2E8F0" } },
+          bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+          right: { style: "thin", color: { argb: "FFE2E8F0" } },
+        };
+        if (index % 2 === 0) {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF9FCFF" },
+          };
+        }
+      });
+      excelRow.getCell(5).numFmt = "#,##0.00";
+      excelRow.getCell(6).numFmt = "#,##0.00";
+    });
+
+    worksheet.columns = [
+      { width: 14 },
+      { width: 18 },
+      { width: 14 },
+      { width: 24 },
+      { width: 14 },
+      { width: 12 },
+      { width: 14 },
+      { width: 14 },
+    ];
+
+    const summaryStart = worksheet.rowCount + 2;
+    worksheet.mergeCells(`A${summaryStart}:D${summaryStart}`);
+    worksheet.getCell(`A${summaryStart}`).value = "SUMMARY";
+    worksheet.getCell(`A${summaryStart}`).font = { bold: true, color: { argb: "FFFFFFFF" } };
+    worksheet.getCell(`A${summaryStart}`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF0F172A" },
+    };
+
+    const totalAmount = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+    const totalGST = rows.reduce((sum, row) => sum + Number(row.gstAmount || 0), 0);
+
+    worksheet.getCell(`E${summaryStart}`).value = "Total Amount";
+    worksheet.getCell(`F${summaryStart}`).value = totalAmount;
+    worksheet.getCell(`F${summaryStart}`).numFmt = "#,##0.00";
+    worksheet.getCell(`G${summaryStart}`).value = "Total GST";
+    worksheet.getCell(`H${summaryStart}`).value = totalGST;
+    worksheet.getCell(`H${summaryStart}`).numFmt = "#,##0.00";
+
+    const excelBuffer = await workbook.xlsx.writeBuffer();
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=\"${type}-ledger-${fileTimestamp()}.xlsx\"`
+    );
+    return res.send(Buffer.from(excelBuffer));
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

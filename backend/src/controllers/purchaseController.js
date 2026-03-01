@@ -2,6 +2,8 @@ import Purchase from "../models/Purchase.js";
 import { addStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
+import LedgerEntry from "../models/LedgerEntry.js";
+import Supplier from "../models/Supplier.js";
 import mongoose from "mongoose";
 
 export const createPurchase = async (req, res) => {
@@ -41,6 +43,8 @@ export const createPurchase = async (req, res) => {
       purchasedBy: req.user._id,
     }], { session });
 
+    const supplierDoc = await Supplier.findById(supplier).session(session);
+
     await addStock({
       materialType,
       lotNumber: normalizedLot,
@@ -64,6 +68,27 @@ export const createPurchase = async (req, res) => {
       referenceId: purchase._id,
       performedBy: req.user._id,
     }], { session });
+
+    await LedgerEntry.create(
+      [
+        {
+          entryType: "PurchaseInvoice",
+          partyType: "Supplier",
+          partyName: supplierDoc?.supplierName || "Supplier",
+          referenceType: "Purchase",
+          referenceId: purchase._id,
+          taxableAmount: totalAmount,
+          gstAmount: 0,
+          amount: totalAmount,
+          debit: totalAmount,
+          credit: 0,
+          status: "Pending",
+          notes: `Auto entry from purchase ${normalizedLot}`,
+          createdBy: req.user._id,
+        },
+      ],
+      { session }
+    );
 
     await session.commitTransaction();
 

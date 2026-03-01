@@ -1,6 +1,7 @@
 import styles from "./Navbar.module.css";
+import { FaMoon, FaSun } from "react-icons/fa";
 
-const Navbar = ({ onMenuToggle }) => {
+const Navbar = ({ onMenuToggle, theme, onThemeToggle }) => {
   return (
     <div className={styles.navbar}>
       <div className={styles.leftGroup}>
@@ -16,6 +17,15 @@ const Navbar = ({ onMenuToggle }) => {
         </button>
         <div className={styles.title}>Welcome to Ematix Textile ERP</div>
       </div>
+      <button
+        type="button"
+        className={styles.themeBtn}
+        onClick={onThemeToggle}
+        aria-label="Toggle theme"
+      >
+        {theme === "dark" ? <FaSun /> : <FaMoon />}
+        {theme === "dark" ? "Light" : "Dark"}
+      </button>
     </div>
   );
 };
