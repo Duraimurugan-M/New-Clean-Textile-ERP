@@ -48,7 +48,7 @@ export const updateRole = async (req, res) => {
     const updatedRole = await Role.findByIdAndUpdate(
       id,
       req.body,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updatedRole) {

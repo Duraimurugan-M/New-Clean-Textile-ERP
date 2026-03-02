@@ -61,18 +61,77 @@ export const getQCRecords = async (req, res) => {
     const requestedStatus = queryObj.status;
 
     const filters = {};
-    if (requestedStatus) {
-      if (requestedStatus === "Pending") {
-        filters.status = { $ne: "Approved" };
-      } else {
-        filters.status = requestedStatus;
-      }
+    if (requestedStatus && requestedStatus !== "Pending") {
+      filters.status = requestedStatus;
     }
     if (search) {
       filters.$or = [
         { lotNumber: { $regex: search, $options: "i" } },
         { grade: { $regex: search, $options: "i" } },
       ];
+    }
+
+    if (requestedStatus === "Pending") {
+      const qcNonApproved = await QC.find({ status: { $ne: "Approved" } })
+        .sort({ [sortBy]: order })
+        .populate("inspectedBy", "name")
+        .lean();
+
+      const inventoryLots = await Inventory.find({
+        materialType: "FinishedFabric",
+        quantity: { $gt: 0 },
+      })
+        .select("lotNumber materialType createdAt")
+        .lean();
+
+      const qcAllLots = new Set((await QC.find().select("lotNumber").lean()).map((q) => q.lotNumber));
+      const noQcPending = inventoryLots
+        .filter((lot) => !qcAllLots.has(lot.lotNumber))
+        .map((lot) => ({
+          _id: `pending-${lot.lotNumber}`,
+          lotNumber: lot.lotNumber,
+          materialType: "FinishedFabric",
+          status: "Pending",
+          grade: "-",
+          gsm: 0,
+          width: 0,
+          shrinkage: 0,
+          defectPercentage: 0,
+          createdAt: lot.createdAt,
+          inspectedBy: null,
+        }));
+
+      let merged = [...qcNonApproved, ...noQcPending];
+      if (search) {
+        const regex = new RegExp(search, "i");
+        merged = merged.filter((row) => regex.test(row.lotNumber) || regex.test(row.grade || ""));
+      }
+
+      merged.sort((a, b) => {
+        const aRaw = a[sortBy] ?? a.createdAt ?? "";
+        const bRaw = b[sortBy] ?? b.createdAt ?? "";
+        const aDate = new Date(aRaw);
+        const bDate = new Date(bRaw);
+        const bothDateValid = !Number.isNaN(aDate.getTime()) && !Number.isNaN(bDate.getTime());
+        if (bothDateValid) {
+          return order === 1 ? aDate - bDate : bDate - aDate;
+        }
+        const aStr = String(aRaw).toLowerCase();
+        const bStr = String(bRaw).toLowerCase();
+        if (aStr < bStr) return order === 1 ? -1 : 1;
+        if (aStr > bStr) return order === 1 ? 1 : -1;
+        return 0;
+      });
+
+      const totalRecords = merged.length;
+      const paged = merged.slice((page - 1) * limit, (page - 1) * limit + limit);
+      return res.json({
+        success: true,
+        data: paged,
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        totalRecords,
+      });
     }
 
     const totalRecords = await QC.countDocuments(filters);

@@ -11,8 +11,17 @@ const normalizeItems = (items = []) =>
       unit: String(item.unit || "kg").trim(),
       wastagePercentage: Number(item.wastagePercentage || 0),
       processStage: String(item.processStage || "").trim(),
-    }))
-    .filter((item) => item.materialName && item.quantity > 0);
+    }));
+
+const hasInvalidItems = (items = []) =>
+  items.some(
+    (item) =>
+      !item.materialType ||
+      !item.materialName ||
+      Number.isNaN(item.quantity) ||
+      item.quantity <= 0 ||
+      !item.unit
+  );
 
 export const createBOM = async (req, res) => {
   try {
@@ -37,6 +46,9 @@ export const createBOM = async (req, res) => {
 
     if (payload.items.length === 0) {
       return res.status(400).json({ message: "At least one BOM item is required" });
+    }
+    if (hasInvalidItems(payload.items)) {
+      return res.status(400).json({ message: "Each BOM item must have material type, name, quantity and unit" });
     }
 
     const existing = await BOM.findOne({ bomCode: payload.bomCode, version: payload.version });
@@ -121,6 +133,9 @@ export const updateBOM = async (req, res) => {
       const normalized = normalizeItems(req.body.items);
       if (normalized.length === 0) {
         return res.status(400).json({ message: "At least one BOM item is required" });
+      }
+      if (hasInvalidItems(normalized)) {
+        return res.status(400).json({ message: "Each BOM item must have material type, name, quantity and unit" });
       }
       bom.items = normalized;
     }

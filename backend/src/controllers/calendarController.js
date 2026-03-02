@@ -135,7 +135,7 @@ export const updateCalendarEvent = async (req, res) => {
     const event = await CalendarEvent.findOneAndUpdate(
       { _id: id, createdBy: req.user._id },
       updates,
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!event) {

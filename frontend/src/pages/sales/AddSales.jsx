@@ -21,7 +21,7 @@ const AddSales = () => {
   // ✅ Load Customers
   useEffect(() => {
     const loadCustomers = async () => {
-      const { data } = await API.get("/customers");
+      const { data } = await API.get("/customers?activeOnly=true&limit=1000");
       setCustomers(data.data);
     };
     loadCustomers();
@@ -31,8 +31,8 @@ const AddSales = () => {
   useEffect(() => {
     const loadLots = async () => {
       try {
-        const qcRes = await API.get("/qc");
-        const inventoryRes = await API.get("/inventory");
+        const qcRes = await API.get("/qc?limit=1000");
+        const inventoryRes = await API.get("/inventory?limit=1000");
 
         // Get Approved QC lots
         const approvedLots = qcRes.data.data.filter(

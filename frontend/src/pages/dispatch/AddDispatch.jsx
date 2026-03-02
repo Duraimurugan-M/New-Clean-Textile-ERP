@@ -27,9 +27,9 @@ const AddDispatch = () => {
   useEffect(() => {
     const load = async () => {
       const [custRes, orderRes, invRes] = await Promise.all([
-        API.get("/customers"),
+        API.get("/customers?activeOnly=true&limit=1000"),
         API.get("/sales-orders"),
-        API.get("/inventory"),
+        API.get("/inventory?limit=1000"),
       ]);
       setCustomers(custRes.data.data || []);
       setOrders(orderRes.data.data || []);

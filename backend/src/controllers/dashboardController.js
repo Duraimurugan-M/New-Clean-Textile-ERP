@@ -1,6 +1,7 @@
 import Inventory from "../models/Inventory.js";
 import Production from "../models/Production.js";
 import Sales from "../models/Sales.js";
+import Purchase from "../models/Purchase.js";
 import QC from "../models/QC.js";
 import SalesOrder from "../models/SalesOrder.js";
 import JobWork from "../models/JobWork.js";
@@ -65,7 +66,15 @@ export const getDashboardData = async (req, res) => {
     const todaySalesAmount = todaySalesAgg[0]?.totalSales || 0;
 
     const lowStockCount = await Inventory.countDocuments({ quantity: { $lt: 50 } });
-    const qcPendingCount = await QC.countDocuments({ status: { $ne: "Approved" } });
+    const finishedLots = await Inventory.distinct("lotNumber", {
+      materialType: "FinishedFabric",
+      quantity: { $gt: 0 },
+    });
+    const approvedLots = await QC.distinct("lotNumber", {
+      lotNumber: { $in: finishedLots },
+      status: "Approved",
+    });
+    const qcPendingCount = Math.max(finishedLots.length - approvedLots.length, 0);
     const totalOrders = await SalesOrder.countDocuments();
     const pendingJobWorkCount = await JobWork.countDocuments({
       status: { $in: ["Issued", "PartiallyReceived"] },
@@ -122,6 +131,16 @@ export const getDashboardData = async (req, res) => {
         $group: {
           _id: groupFormat,
           totalSales: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { "_id.year": 1 } },
+    ]);
+
+    const monthlyPurchase = await Purchase.aggregate([
+      {
+        $group: {
+          _id: groupFormat,
+          totalPurchase: { $sum: "$totalAmount" },
         },
       },
       { $sort: { "_id.year": 1 } },
@@ -184,6 +203,7 @@ export const getDashboardData = async (req, res) => {
         avgWastage: Number((productionHealth?.avgWastage || 0).toFixed(2)),
         topCustomers,
         monthlySales,
+        monthlyPurchase,
         monthlyProduction,
         topJobWorkers,
       },

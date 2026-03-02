@@ -34,7 +34,7 @@ const AddProduction = () => {
   // Load inventory
   useEffect(() => {
     const fetchInventory = async () => {
-      const { data } = await API.get("/inventory");
+      const { data } = await API.get("/inventory?limit=1000");
       setInventory(data.data);
     };
     fetchInventory();

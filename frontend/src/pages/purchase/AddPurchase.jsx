@@ -25,7 +25,7 @@ const [formData, setFormData] = useState({
 
   const fetchSuppliers = async () => {
     try {
-      const { data } = await API.get("/suppliers");
+      const { data } = await API.get("/suppliers?activeOnly=true&limit=1000");
       setSuppliers(data.data);
     } catch (error) {
       console.error("Error fetching suppliers", error);

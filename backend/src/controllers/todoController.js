@@ -124,7 +124,7 @@ export const updateTodo = async (req, res) => {
     const todo = await Todo.findOneAndUpdate(
       { _id: id, createdBy: req.user._id },
       updates,
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!todo) {

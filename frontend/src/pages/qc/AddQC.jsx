@@ -19,16 +19,22 @@ const AddQC = () => {
   useEffect(() => {
     const fetchLots = async () => {
       try {
-        const { data } = await API.get("/inventory");
+        const [inventoryRes, qcRes] = await Promise.all([
+          API.get("/inventory?limit=1000"),
+          API.get("/qc?limit=1000"),
+        ]);
 
         // Only FinishedFabric with stock > 0
-        const finishedLots = data.data.filter(
+        const finishedLots = inventoryRes.data.data.filter(
           (item) =>
             item.materialType === "FinishedFabric" &&
             item.quantity > 0
         );
 
-        setLots(finishedLots);
+        const qcDoneLots = new Set((qcRes.data.data || []).map((item) => item.lotNumber));
+        const pendingLots = finishedLots.filter((lot) => !qcDoneLots.has(lot.lotNumber));
+
+        setLots(pendingLots);
       } catch (error) {
         console.error("Error loading lots", error);
       }

@@ -37,7 +37,7 @@ export const createSale = async (req, res) => {
     session.startTransaction();
 
     // 🔒 QC Check
-    const qcRecord = await QC.findOne({ lotNumber }).session(session);
+    const qcRecord = await QC.findOne({ lotNumber }).sort({ createdAt: -1 }).session(session);
     if (!qcRecord) {
       await session.abortTransaction();
       return res.status(400).json({ message: "QC not completed" });

@@ -42,7 +42,21 @@ const AddBOM = () => {
     );
   };
 
-  const addItem = () => setItems((prev) => [...prev, createEmptyItem()]);
+  const addItem = () => {
+    const hasIncomplete = items.some(
+      (item) =>
+        !item.materialType ||
+        !String(item.materialName || "").trim() ||
+        !item.quantity ||
+        Number(item.quantity) <= 0 ||
+        !String(item.unit || "").trim()
+    );
+    if (hasIncomplete) {
+      alert("Please complete current BOM items before adding a new row");
+      return;
+    }
+    setItems((prev) => [...prev, createEmptyItem()]);
+  };
   const removeItem = (index) => {
     setItems((prev) => (prev.length === 1 ? prev : prev.filter((_, i) => i !== index)));
   };
@@ -50,6 +64,19 @@ const AddBOM = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const hasIncomplete = items.some(
+        (item) =>
+          !item.materialType ||
+          !String(item.materialName || "").trim() ||
+          !item.quantity ||
+          Number(item.quantity) <= 0 ||
+          !String(item.unit || "").trim()
+      );
+      if (hasIncomplete) {
+        alert("Please fill all required fields for each BOM item");
+        return;
+      }
+
       setLoading(true);
       await API.post("/bom", {
         ...formData,
@@ -175,6 +202,31 @@ const AddBOM = () => {
                   gap: 8,
                 }}
               >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 2,
+                  }}
+                >
+                  <strong>Item {index + 1}</strong>
+                  {items.length > 1 ? (
+                    <button type="button" className={styles.button} onClick={() => removeItem(index)}>
+                      Remove Item
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.button}
+                      disabled
+                      title="At least one item is required"
+                      style={{ opacity: 0.6, cursor: "not-allowed" }}
+                    >
+                      Remove Item
+                    </button>
+                  )}
+                </div>
                 <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
                   <div style={{ display: "grid", gap: 6 }}>
                     <label>Material Type</label>
@@ -241,11 +293,6 @@ const AddBOM = () => {
                       onChange={(e) => handleItemChange(index, "processStage", e.target.value)}
                     />
                   </div>
-                </div>
-                <div>
-                  <button type="button" className={styles.button} onClick={() => removeItem(index)}>
-                    Remove Item
-                  </button>
                 </div>
               </div>
             ))}

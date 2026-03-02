@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import API from "../../api/axios";
@@ -9,8 +8,9 @@ import styles from "./Dashboard.module.css";
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [range, setRange] = useState("daily");
-  const [growthMode, setGrowthMode] = useState("percent");
-  const [themeVersion, setThemeVersion] = useState(0);
+  const [isDarkTheme, setIsDarkTheme] = useState(
+    document.documentElement.getAttribute("data-theme") === "dark"
+  );
   const [analyticsInView, setAnalyticsInView] = useState(false);
   const navigate = useNavigate();
   const analyticsRef = useRef(null);
@@ -25,12 +25,15 @@ const Dashboard = () => {
   }, [range]);
 
   useEffect(() => {
-    fetchDashboard();
+    const timer = setTimeout(() => {
+      fetchDashboard();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchDashboard]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setThemeVersion((prev) => prev + 1);
+      setIsDarkTheme(document.documentElement.getAttribute("data-theme") === "dark");
     });
 
     observer.observe(document.documentElement, {
@@ -58,79 +61,34 @@ const Dashboard = () => {
   useEffect(() => {
     if (!analyticsInView) return undefined;
 
-    fetchDashboard();
+    const firstFetch = setTimeout(() => {
+      fetchDashboard();
+    }, 0);
     const timer = setInterval(() => {
       fetchDashboard();
     }, 8000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(firstFetch);
+      clearInterval(timer);
+    };
   }, [analyticsInView, fetchDashboard]);
 
   const metrics = data || {};
 
-  const salesLabels =
-    metrics.monthlySales?.map((item) => {
-      if (range === "yearly") return item._id.year;
-      if (range === "weekly") return `W${item._id.week}`;
-      if (range === "daily") return `${item._id.day}/${item._id.month}`;
-      return `${item._id.month}/${item._id.year}`;
-    }) || [];
+  const formatBucketLabel = (item) => {
+    if (range === "yearly") return item._id.year;
+    if (range === "weekly") return `W${item._id.week}`;
+    if (range === "daily") return `${item._id.day}/${item._id.month}`;
+    return `${item._id.month}/${item._id.year}`;
+  };
+
+  const salesLabels = metrics.monthlySales?.map((item) => formatBucketLabel(item)) || [];
+  const purchaseLabels = metrics.monthlyPurchase?.map((item) => formatBucketLabel(item)) || [];
 
   const salesValues = metrics.monthlySales?.map((item) => Number(item.totalSales || 0)) || [];
-  const growthPoints = salesValues.map((currentValue, index) => {
-    if (index === 0) {
-      return {
-        value: 0,
-        prev: null,
-        current: currentValue,
-        isBase: true,
-        isNoSales: false,
-      };
-    }
-
-    const prevValue = Number(salesValues[index - 1] || 0);
-    const change = currentValue - prevValue;
-
-    if (prevValue <= 0) {
-      return {
-        value: 0,
-        prev: prevValue,
-        current: currentValue,
-        isBase: true,
-        isNoSales: currentValue === 0,
-        change,
-      };
-    }
-
-    if (currentValue === 0) {
-      return {
-        value: -100,
-        prev: prevValue,
-        current: currentValue,
-        isBase: false,
-        isNoSales: true,
-        change,
-      };
-    }
-
-    const percent = ((currentValue - prevValue) / prevValue) * 100;
-    return {
-      value: Number(Math.max(percent, -100).toFixed(2)),
-      prev: prevValue,
-      current: currentValue,
-      isBase: false,
-      isNoSales: false,
-      change,
-    };
-  });
-  const growthValues = growthPoints.map((point) => point.value);
-  const changeValues = growthPoints.map((point) =>
-    Number((point.current || 0) - (point.prev || 0))
-  );
-  const topCustomerLabels = metrics.topCustomers?.map((cust) => cust.customerName) || [];
-  const topCustomerValues =
-    metrics.topCustomers?.map((cust) => Number(cust.totalPurchase || 0)) || [];
-
+  const purchaseValues =
+    metrics.monthlyPurchase?.map((item) => Number(item.totalPurchase || 0)) || [];
   const themeTokens = useMemo(() => {
     const rootStyle = getComputedStyle(document.documentElement);
     return {
@@ -141,9 +99,9 @@ const Dashboard = () => {
       primary2: rootStyle.getPropertyValue("--primary-2").trim() || "#084c68",
       accent: rootStyle.getPropertyValue("--accent").trim() || "#b76a0a",
       surface2: rootStyle.getPropertyValue("--surface-2").trim() || "#f5f8fb",
-      isDark: document.documentElement.getAttribute("data-theme") === "dark",
+      isDark: isDarkTheme,
     };
-  }, [themeVersion]);
+  }, [isDarkTheme]);
 
   const commonTooltip = {
     trigger: "axis",
@@ -203,7 +161,7 @@ const Dashboard = () => {
     ],
   };
 
-  const salesBarOption = {
+  const purchaseBarOption = {
     animationDuration: 1000,
     animationDurationUpdate: 650,
     animationEasing: "elasticOut",
@@ -211,38 +169,24 @@ const Dashboard = () => {
     grid: { left: 12, right: 18, top: 34, bottom: 30, containLabel: true },
     xAxis: {
       type: "category",
-      data: salesLabels,
+      data: purchaseLabels,
       axisTick: { show: false },
       axisLine: { lineStyle: { color: themeTokens.line } },
       axisLabel: { color: themeTokens.muted },
     },
-    yAxis:
-      growthMode === "percent"
-        ? {
-            type: "value",
-            min: -100,
-            max: 100,
-            splitLine: {
-              lineStyle: {
-                color: themeTokens.line,
-                type: "dashed",
-              },
-            },
-            axisLabel: { color: themeTokens.muted, formatter: "{value}%" },
-          }
-        : {
-            type: "value",
-            splitLine: {
-              lineStyle: {
-                color: themeTokens.line,
-                type: "dashed",
-              },
-            },
-            axisLabel: {
-              color: themeTokens.muted,
-              formatter: (value) => `Rs ${Number(value).toLocaleString()}`,
-            },
-          },
+    yAxis: {
+      type: "value",
+      splitLine: {
+        lineStyle: {
+          color: themeTokens.line,
+          type: "dashed",
+        },
+      },
+      axisLabel: {
+        color: themeTokens.muted,
+        formatter: (value) => `Rs ${Number(value).toLocaleString()}`,
+      },
+    },
     tooltip: {
       trigger: "axis",
       backgroundColor: themeTokens.isDark ? "rgba(9,18,28,0.96)" : "rgba(255,255,255,0.96)",
@@ -254,40 +198,29 @@ const Dashboard = () => {
       },
       formatter: (params) => {
         const idx = params?.[0]?.dataIndex ?? 0;
-        const point = growthPoints[idx];
-        if (!point) return "";
-
-        const prevText = point.prev == null ? "-" : `Rs ${Number(point.prev).toLocaleString()}`;
-        const currentText = `Rs ${Number(point.current || 0).toLocaleString()}`;
+        const current = Number(purchaseValues[idx] || 0);
+        const prev = idx > 0 ? Number(purchaseValues[idx - 1] || 0) : null;
+        const change = prev == null ? 0 : current - prev;
         const changeText =
-          growthMode === "percent"
-            ? point.isNoSales
-              ? "No Sales"
-              : `${point.value}%`
-            : `Rs ${Number(point.change || 0).toLocaleString()}`;
-
-        return `${salesLabels[idx] || ""}<br/>Previous: ${prevText}<br/>Current: ${currentText}<br/>Change: ${changeText}`;
+          prev == null
+            ? "Base period"
+            : `${change >= 0 ? "+" : ""}Rs ${Math.abs(change).toLocaleString()}`;
+        return `${purchaseLabels[idx] || ""}<br/>Purchase: Rs ${current.toLocaleString()}<br/>Change: ${changeText}`;
       },
       extraCssText: "box-shadow:0 12px 28px rgba(0,0,0,0.22);border-radius:10px;",
     },
     series: [
       {
-        name: growthMode === "percent" ? "Growth %" : "Absolute Change",
+        name: "Purchase",
         type: "bar",
-        barWidth: "34%",
-        data: growthMode === "percent" ? growthValues : changeValues,
+        barWidth: "42%",
+        data: purchaseValues,
         itemStyle: {
           borderRadius: [8, 8, 0, 0],
-          color: ({ value }) =>
-            value >= 0
-              ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: themeTokens.primary },
-                  { offset: 1, color: themeTokens.primary2 },
-                ])
-              : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#ef4444" },
-                  { offset: 1, color: "#b91c1c" },
-                ]),
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: themeTokens.primary },
+            { offset: 1, color: themeTokens.primary2 },
+          ]),
           shadowColor: `${themeTokens.primary}99`,
           shadowBlur: 18,
           shadowOffsetY: 4,
@@ -297,16 +230,7 @@ const Dashboard = () => {
           position: "top",
           color: themeTokens.text,
           fontWeight: 700,
-          formatter: ({ value, dataIndex }) => {
-            const point = growthPoints[dataIndex];
-            if (growthMode === "percent") {
-              if (point?.isNoSales) return "No Sales";
-              if (point?.isBase) return "Base";
-              return `${value}%`;
-            }
-            if (point?.isBase) return "Base";
-            return `Rs ${Number(value).toLocaleString()}`;
-          },
+          formatter: ({ value }) => `Rs ${Number(value).toLocaleString()}`,
         },
       },
       {
@@ -317,16 +241,19 @@ const Dashboard = () => {
         symbolPosition: "end",
         z: 10,
         itemStyle: {
-          color: ({ value }) => (value >= 0 ? themeTokens.accent : "#ef4444"),
+          color: themeTokens.accent,
           shadowBlur: 10,
           shadowColor: `${themeTokens.accent}88`,
         },
-        data: growthMode === "percent" ? growthValues : changeValues,
+        data: purchaseValues,
       },
     ],
   };
 
   const customerMixOption = useMemo(() => {
+    const topCustomerLabels = metrics.topCustomers?.map((cust) => cust.customerName) || [];
+    const topCustomerValues =
+      metrics.topCustomers?.map((cust) => Number(cust.totalPurchase || 0)) || [];
     const total = topCustomerValues.reduce((acc, val) => acc + val, 0);
     const palette = [
       themeTokens.primary,
@@ -392,7 +319,7 @@ const Dashboard = () => {
         },
       ],
     };
-  }, [topCustomerLabels, topCustomerValues, themeTokens]);
+  }, [metrics.topCustomers, themeTokens]);
 
   const efficiencyGaugeOption = useMemo(() => {
     const efficiency = Number(metrics.avgEfficiency ?? 0);
@@ -521,11 +448,8 @@ const Dashboard = () => {
 
       <h2 className={styles.sectionTitle}>Analytics</h2>
       <div className={styles.analyticsGrid} ref={analyticsRef}>
-        <motion.div
+        <div
           className={styles.chartSection}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.05 }}
         >
           <div className={styles.chartHeader}>
             <h3>Sales Trend</h3>
@@ -539,31 +463,21 @@ const Dashboard = () => {
           <div className={styles.chartCanvas}>
             <ReactECharts option={salesLineOption} notMerge style={{ height: "100%", width: "100%" }} />
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           className={styles.chartSection}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
         >
           <div className={styles.chartHeader}>
-            <h3>{growthMode === "percent" ? "Sales Growth %" : "Sales Change (Rs)"}</h3>
-            <select value={growthMode} onChange={(e) => setGrowthMode(e.target.value)}>
-              <option value="percent">Growth %</option>
-              <option value="absolute">Absolute Change (Rs)</option>
-            </select>
+            <h3>Purchase Trend</h3>
           </div>
           <div className={styles.chartCanvas}>
-            <ReactECharts option={salesBarOption} notMerge style={{ height: "100%", width: "100%" }} />
+            <ReactECharts option={purchaseBarOption} notMerge style={{ height: "100%", width: "100%" }} />
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           className={styles.chartSection}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.15 }}
         >
           <div className={styles.chartHeader}>
             <h3>Customer Contribution</h3>
@@ -571,13 +485,10 @@ const Dashboard = () => {
           <div className={styles.chartCanvas}>
             <ReactECharts option={customerMixOption} style={{ height: "100%", width: "100%" }} />
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           className={styles.chartSection}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.2 }}
         >
           <div className={styles.chartHeader}>
             <h3>Efficiency vs Wastage</h3>
@@ -585,7 +496,7 @@ const Dashboard = () => {
           <div className={styles.chartCanvas}>
             <ReactECharts option={efficiencyGaugeOption} style={{ height: "100%", width: "100%" }} />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <h2 className={styles.sectionTitle}>Performance Tables</h2>
