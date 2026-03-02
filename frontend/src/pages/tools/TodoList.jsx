@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import API from "../../api/axios";
+import hero from "../../styles/moduleHero.module.css";
 import styles from "./TodoList.module.css";
 
 const defaultForm = {
@@ -205,64 +206,70 @@ const TodoList = () => {
   );
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Todo List</h2>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <div>
+          <p className={hero.kicker}>Tools Workspace</p>
+          <h1 className={hero.title}>Todo List</h1>
+          <p className={hero.subtitle}>Track operational follow-ups and pending textile tasks in one place.</p>
+        </div>
       </div>
 
-      <form className={styles.form} onSubmit={handleCreate}>
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Task title"
-          required
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Task description (optional)"
-        />
-        <div className={styles.row}>
-          <select name="priority" value={form.priority} onChange={handleChange}>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
+      <div className={styles.container}>
+        <form className={styles.form} onSubmit={handleCreate}>
           <input
-            type="date"
-            name="dueDate"
-            min={todayDateInput()}
-            value={form.dueDate}
+            type="text"
+            name="title"
+            value={form.title}
             onChange={handleChange}
+            placeholder="Task title"
+            required
           />
-        </div>
-        <button type="submit" className={styles.addBtn}>
-          Add Task
-        </button>
-      </form>
-
-      {errorText ? <p className={styles.error}>{errorText}</p> : null}
-      {loading ? <p>Loading todos...</p> : null}
-
-      {!loading && (
-        <div className={styles.lists}>
-          <div className={styles.card}>
-            <h3>Pending ({openTodos.length})</h3>
-            <ul className={styles.todoList}>
-              {openTodos.length ? openTodos.map(renderTodoItem) : <li className={styles.empty}>No pending tasks</li>}
-            </ul>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Task description (optional)"
+          />
+          <div className={styles.row}>
+            <select name="priority" value={form.priority} onChange={handleChange}>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+            <input
+              type="date"
+              name="dueDate"
+              min={todayDateInput()}
+              value={form.dueDate}
+              onChange={handleChange}
+            />
           </div>
-          <div className={styles.card}>
-            <h3>Completed ({doneTodos.length})</h3>
-            <ul className={styles.todoList}>
-              {doneTodos.length ? doneTodos.map(renderTodoItem) : <li className={styles.empty}>No completed tasks</li>}
-            </ul>
+          <button type="submit" className={styles.addBtn}>
+            Add Task
+          </button>
+        </form>
+
+        {errorText ? <p className={styles.error}>{errorText}</p> : null}
+        {loading ? <p>Loading todos...</p> : null}
+
+        {!loading && (
+          <div className={styles.lists}>
+            <div className={styles.card}>
+              <h3>Pending ({openTodos.length})</h3>
+              <ul className={styles.todoList}>
+                {openTodos.length ? openTodos.map(renderTodoItem) : <li className={styles.empty}>No pending tasks</li>}
+              </ul>
+            </div>
+            <div className={styles.card}>
+              <h3>Completed ({doneTodos.length})</h3>
+              <ul className={styles.todoList}>
+                {doneTodos.length ? doneTodos.map(renderTodoItem) : <li className={styles.empty}>No completed tasks</li>}
+              </ul>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -1,0 +1,53 @@
+.pageWrapper {
+  padding: 0;
+}
+
+.hero {
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  margin-bottom: 16px;
+  background:
+    radial-gradient(460px 180px at 0% 0%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 68%),
+    linear-gradient(165deg, var(--surface-strong), var(--surface));
+}
+
+.kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.card {
+  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 14px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}

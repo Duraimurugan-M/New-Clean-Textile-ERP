@@ -137,7 +137,7 @@ const CustomerList = () => {
           serverMode={true}
           totalPages={totalPages}
           onFetchData={fetchCustomers}
-          searchField="customerName"
+          searchField="Customer Name"
         />
       </div>
 

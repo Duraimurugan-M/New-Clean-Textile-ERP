@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "../sales/SalesList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const BOMList = () => {
   const [rows, setRows] = useState([]);
@@ -97,72 +98,79 @@ const BOMList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>BOM Master</h2>
-        <Link to="/bom/add" className={styles.addBtn}>
-          + Add BOM
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Production Workspace</p>
+        <h1 className={hero.title}>BOM Master</h1>
+        <p className={hero.subtitle}>Define standard material recipes and calculate requirement/shortage instantly.</p>
       </div>
-
-      <div style={{ marginBottom: 12, display: "grid", gap: 8 }}>
-        <h3 style={{ margin: 0 }}>Material Requirement Calculator</h3>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <select value={selectedBomId} onChange={(e) => setSelectedBomId(e.target.value)}>
-            <option value="">Select BOM</option>
-            {bomOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            min="0.0001"
-            step="0.0001"
-            placeholder="Planned Quantity"
-            value={plannedQuantity}
-            onChange={(e) => setPlannedQuantity(e.target.value)}
-          />
-          <button type="button" className={styles.addBtn} onClick={calculateRequirement}>
-            Calculate
-          </button>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>BOM Register</h2>
+          <Link to="/bom/add" className={styles.addBtn}>
+            + Add BOM
+          </Link>
         </div>
+
+        <div style={{ marginBottom: 12, display: "grid", gap: 8 }}>
+          <h3 style={{ margin: 0 }}>Material Requirement Calculator</h3>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <select value={selectedBomId} onChange={(e) => setSelectedBomId(e.target.value)}>
+              <option value="">Select BOM</option>
+              {bomOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min="0.0001"
+              step="0.0001"
+              placeholder="Planned Quantity"
+              value={plannedQuantity}
+              onChange={(e) => setPlannedQuantity(e.target.value)}
+            />
+            <button type="button" className={styles.addBtn} onClick={calculateRequirement}>
+              Calculate
+            </button>
+          </div>
+        </div>
+
+        {calculation && (
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ margin: "0 0 8px 0", fontWeight: 700 }}>
+              Requirement for {calculation.productName} | Planned Qty: {calculation.plannedQuantity}
+            </p>
+            <DataTable
+              columns={[
+                { key: "materialType", label: "Material Type" },
+                { key: "materialName", label: "Material Name" },
+                { key: "unit", label: "Unit" },
+                { key: "baseQty", label: "Base Qty" },
+                { key: "wastageQty", label: "Wastage Qty" },
+                { key: "requiredQty", label: "Required Qty" },
+                { key: "availableQty", label: "Available Qty" },
+                { key: "shortageQty", label: "Shortage Qty" },
+              ]}
+              data={calculation.requirements || []}
+              title="bom-requirement"
+              showExportButtons={false}
+            />
+          </div>
+        )}
+
+        <DataTable
+          columns={columns}
+          data={rows}
+          serverMode
+          totalPages={totalPages}
+          onFetchData={fetchBOMs}
+          searchField="BOM Code / Product"
+          title="bom-master"
+        />
+        {errorText && <p style={{ color: "#b91c1c", marginTop: 10 }}>{errorText}</p>}
       </div>
-
-      {calculation && (
-        <div style={{ marginBottom: 12 }}>
-          <p style={{ margin: "0 0 8px 0", fontWeight: 700 }}>
-            Requirement for {calculation.productName} | Planned Qty: {calculation.plannedQuantity}
-          </p>
-          <DataTable
-            columns={[
-              { key: "materialType", label: "Material Type" },
-              { key: "materialName", label: "Material Name" },
-              { key: "unit", label: "Unit" },
-              { key: "baseQty", label: "Base Qty" },
-              { key: "wastageQty", label: "Wastage Qty" },
-              { key: "requiredQty", label: "Required Qty" },
-              { key: "availableQty", label: "Available Qty" },
-              { key: "shortageQty", label: "Shortage Qty" },
-            ]}
-            data={calculation.requirements || []}
-            title="bom-requirement"
-            showExportButtons={false}
-          />
-        </div>
-      )}
-
-      <DataTable
-        columns={columns}
-        data={rows}
-        serverMode
-        totalPages={totalPages}
-        onFetchData={fetchBOMs}
-        searchField="bomCode / product"
-        title="bom-master"
-      />
-      {errorText && <p style={{ color: "#b91c1c", marginTop: 10 }}>{errorText}</p>}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "../../components/common/DataTable.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const StockMovementList = () => {
   const [movements, setMovements] = useState([]);
@@ -50,14 +51,23 @@ const columns = [
 ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={movements}
-      serverMode={true}
-      totalPages={totalPages}
-      onFetchData={fetchMovements}
-      searchField="lotNumber"
-    />
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Inventory Workspace</p>
+        <h1 className={hero.title}>Stock Movement</h1>
+        <p className={hero.subtitle}>Review inward/outward stock transactions across all modules.</p>
+      </div>
+      <div className={hero.card}>
+        <DataTable
+          columns={columns}
+          data={movements}
+          serverMode={true}
+          totalPages={totalPages}
+          onFetchData={fetchMovements}
+          searchField="Lot Number or Material"
+        />
+      </div>
+    </div>
   );
 };
 

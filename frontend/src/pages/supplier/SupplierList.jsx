@@ -4,6 +4,7 @@ import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import EditModal from "../../components/common/EditModal";
 import styles from "./SupplierList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -110,39 +111,46 @@ const SupplierList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Supplier Management</h2>
-        <Link to="/supplier/add" className={styles.addBtn}>
-          + Add Supplier
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Purchase Workspace</p>
+        <h1 className={hero.title}>Supplier Management</h1>
+        <p className={hero.subtitle}>Maintain supplier master data for purchase and procurement operations.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Supplier Directory</h2>
+          <Link to="/supplier/add" className={styles.addBtn}>
+            + Add Supplier
+          </Link>
+        </div>
 
-      <DataTable
-        columns={columns}
-        data={suppliers}
-        serverMode={true}
-        totalPages={totalPages}
-        onFetchData={fetchSuppliers}
-        searchField="supplierName"
-      />
+        <DataTable
+          columns={columns}
+          data={suppliers}
+          serverMode={true}
+          totalPages={totalPages}
+          onFetchData={fetchSuppliers}
+          searchField="Supplier Name"
+        />
 
-      <EditModal
-        isOpen={Boolean(editTarget)}
-        title="Edit Supplier"
-        fields={[
-          { name: "supplierName", label: "Supplier Name", required: true },
-          { name: "contactPerson", label: "Contact Person" },
-          { name: "phone", label: "Phone" },
-          { name: "email", label: "Email", type: "email" },
-          { name: "address", label: "Address" },
-        ]}
-        values={editForm}
-        onChange={handleEditChange}
-        onClose={() => setEditTarget(null)}
-        onSubmit={handleEditSubmit}
-        submitting={savingEdit}
-      />
+        <EditModal
+          isOpen={Boolean(editTarget)}
+          title="Edit Supplier"
+          fields={[
+            { name: "supplierName", label: "Supplier Name", required: true },
+            { name: "contactPerson", label: "Contact Person" },
+            { name: "phone", label: "Phone" },
+            { name: "email", label: "Email", type: "email" },
+            { name: "address", label: "Address" },
+          ]}
+          values={editForm}
+          onChange={handleEditChange}
+          onClose={() => setEditTarget(null)}
+          onSubmit={handleEditSubmit}
+          submitting={savingEdit}
+        />
+      </div>
     </div>
   );
 };

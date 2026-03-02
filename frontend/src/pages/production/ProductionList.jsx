@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./ProductionList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const ProductionList = () => {
   const [productions, setProductions] = useState([]);
@@ -36,22 +37,29 @@ const ProductionList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Production Management</h2>
-        <Link to="/production/add" className={styles.addBtn}>
-          + Add Production
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Production Workspace</p>
+        <h1 className={hero.title}>Production Management</h1>
+        <p className={hero.subtitle}>Monitor process-wise conversion, efficiency, wastage, and costing.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Production Register</h2>
+          <Link to="/production/add" className={styles.addBtn}>
+            + Add Production
+          </Link>
+        </div>
 
-      <DataTable
-        columns={columns}
-        data={productions}
-        serverMode={true}
-        totalPages={totalPages}
-        onFetchData={fetchProductions}
-        searchField="inputLotNumber"
-      />
+        <DataTable
+          columns={columns}
+          data={productions}
+          serverMode={true}
+          totalPages={totalPages}
+          onFetchData={fetchProductions}
+          searchField="Input Lot No or Machine Code"
+        />
+      </div>
     </div>
   );
 };

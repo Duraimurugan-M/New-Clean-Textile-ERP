@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./JobWork.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const JobWorkList = () => {
   const [jobWorks, setJobWorks] = useState([]);
@@ -99,22 +100,29 @@ const JobWorkList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Job Work Management</h2>
-        <Link to="/job-work/add" className={styles.addBtn}>
-          + Issue Job Work
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Job Work Workspace</p>
+        <h1 className={hero.title}>Job Work Management</h1>
+        <p className={hero.subtitle}>Track issue/receive cycle, pending quantity, and vendor performance.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Job Work Register</h2>
+          <Link to="/job-work/add" className={styles.addBtn}>
+            + Issue Job Work
+          </Link>
+        </div>
 
-      <DataTable
-        columns={columns}
-        data={jobWorks}
-        serverMode
-        totalPages={totalPages}
-        onFetchData={fetchJobWorks}
-        searchField="lotNumber"
-      />
+        <DataTable
+          columns={columns}
+          data={jobWorks}
+          serverMode
+          totalPages={totalPages}
+          onFetchData={fetchJobWorks}
+          searchField="Lot Number"
+        />
+      </div>
     </div>
   );
 };

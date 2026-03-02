@@ -5,6 +5,7 @@ import StockMovement from "../models/StockMovement.js";
 import SalesOrder from "../models/SalesOrder.js";
 import { deductStock } from "../services/inventoryService.js";
 import QueryFeatures from "../utils/queryFeatures.js";
+import QC from "../models/QC.js";
 
 export const createDispatch = async (req, res) => {
   const session = await mongoose.startSession();
@@ -40,6 +41,13 @@ export const createDispatch = async (req, res) => {
     }
 
     const mType = materialType || "FinishedFabric";
+    if (mType === "FinishedFabric") {
+      const qcRecord = await QC.findOne({ lotNumber }).sort({ createdAt: -1 }).session(session);
+      if (!qcRecord || qcRecord.status !== "Approved") {
+        await session.abortTransaction();
+        return res.status(400).json({ message: "Dispatch allowed only for QC-approved finished lot" });
+      }
+    }
     const stockBefore = await Inventory.findOne({
       materialType: mType,
       lotNumber,

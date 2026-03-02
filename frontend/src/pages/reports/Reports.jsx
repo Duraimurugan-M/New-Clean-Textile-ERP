@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
-import styles from "../dashboard/Dashboard.module.css";
+import DataTable from "../../components/common/DataTable";
+import styles from "./Reports.module.css";
 
 const Reports = () => {
   const [ops, setOps] = useState(null);
@@ -39,31 +40,45 @@ const Reports = () => {
     }
   };
 
-  if (!ops || !profit) return <p>Loading reports...</p>;
+  if (!ops || !profit) return <p className={styles.loading}>Loading reports...</p>;
+
+  const inventoryColumns = [
+    { key: "_id", label: "Material" },
+    { key: "totalQty", label: "Total Qty" },
+    { key: "totalValue", label: "Total Value", render: (row) => `Rs. ${row.totalValue}` },
+  ];
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Reports</h1>
+    <div className={styles.pageWrapper}>
+      <div className={styles.hero}>
+        <div>
+          <p className={styles.kicker}>Business Intelligence</p>
+          <h1 className={styles.title}>Reports</h1>
+          <p className={styles.subtitle}>Track operations, revenue, costs, and margin from one place.</p>
+        </div>
+      </div>
+
+      <div className={styles.card}>
       <div className={styles.kpiGrid}>
-        <div className={styles.card}>
+        <div className={styles.kpiCard}>
           <h4>Revenue</h4>
           <p>Rs. {profit.revenue}</p>
         </div>
-        <div className={styles.card}>
+        <div className={styles.kpiCard}>
           <h4>Purchase Cost</h4>
           <p>Rs. {profit.purchaseCost}</p>
         </div>
-        <div className={styles.card}>
+        <div className={styles.kpiCard}>
           <h4>Expenses</h4>
           <p>Rs. {profit.expenseCost}</p>
         </div>
-        <div className={styles.card}>
+        <div className={styles.kpiCard}>
           <h4>Profit Margin</h4>
           <p>{profit.margin}%</p>
         </div>
       </div>
 
-      <div style={{ marginBottom: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className={styles.actions}>
         <button onClick={() => download("/reports/operations/export?format=excel", "operations-report.csv", "text/csv")}>
           Export Operations Excel
         </button>
@@ -78,26 +93,15 @@ const Reports = () => {
         </button>
       </div>
 
-      <div className={styles.tableSection}>
+      <div className={styles.section}>
         <h3>Inventory Summary</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Material</th>
-              <th>Total Qty</th>
-              <th>Total Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(ops.inventory || []).map((item) => (
-              <tr key={item._id}>
-                <td>{item._id}</td>
-                <td>{item.totalQty}</td>
-                <td>Rs. {item.totalValue}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={inventoryColumns}
+          data={ops.inventory || []}
+          showExportButtons={false}
+          title="reports-inventory-summary"
+        />
+        </div>
       </div>
     </div>
   );

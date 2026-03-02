@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "../sales/SalesList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const getFilenameFromDisposition = (disposition, fallback) => {
   if (!disposition) return fallback;
@@ -115,42 +116,49 @@ const AccountsList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>{tabTitle}</h2>
-        <Link to="/accounts/add" className={styles.addBtn}>
-          + Add Entry
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Accounts Workspace</p>
+        <h1 className={hero.title}>Accounts Management</h1>
+        <p className={hero.subtitle}>Monitor payables, receivables, and ledger entries with export support.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>{tabTitle}</h2>
+          <Link to="/accounts/add" className={styles.addBtn}>
+            + Add Entry
+          </Link>
+        </div>
 
-      <div style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button className={styles.addBtn} onClick={() => setTab("all")} type="button" style={tab === "all" ? { outline: "2px solid #ffffff55" } : undefined}>All</button>
-        <button className={styles.addBtn} onClick={() => setTab("purchase")} type="button" style={tab === "purchase" ? { outline: "2px solid #ffffff55" } : undefined}>Purchase Ledger</button>
-        <button className={styles.addBtn} onClick={() => setTab("sales")} type="button" style={tab === "sales" ? { outline: "2px solid #ffffff55" } : undefined}>Sales Ledger</button>
-        <button className={styles.addBtn} onClick={() => setTab("expense")} type="button" style={tab === "expense" ? { outline: "2px solid #ffffff55" } : undefined}>Expense Ledger</button>
+        <div style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button className={styles.addBtn} onClick={() => setTab("all")} type="button" style={tab === "all" ? { outline: "2px solid #ffffff55" } : undefined}>All</button>
+          <button className={styles.addBtn} onClick={() => setTab("purchase")} type="button" style={tab === "purchase" ? { outline: "2px solid #ffffff55" } : undefined}>Purchase Ledger</button>
+          <button className={styles.addBtn} onClick={() => setTab("sales")} type="button" style={tab === "sales" ? { outline: "2px solid #ffffff55" } : undefined}>Sales Ledger</button>
+          <button className={styles.addBtn} onClick={() => setTab("expense")} type="button" style={tab === "expense" ? { outline: "2px solid #ffffff55" } : undefined}>Expense Ledger</button>
+        </div>
+
+        <div style={{ marginBottom: 12, fontWeight: 700 }}>
+          Pending Payables: Rs. {summary.pendingPayables || 0} | Pending Receivables: Rs.{" "}
+          {summary.pendingReceivables || 0}
+        </div>
+
+        <DataTable
+          key={tab}
+          columns={columns}
+          data={entries}
+          serverMode
+          totalPages={totalPages}
+          onFetchData={fetchEntries}
+          searchField="Party Name"
+          showExportButtons={false}
+          rightActions={
+            <>
+              <button className={styles.addBtn} onClick={() => handleExport("excel")} type="button">Export Excel</button>
+              <button className={styles.addBtn} onClick={() => handleExport("pdf")} type="button">Export PDF</button>
+            </>
+          }
+        />
       </div>
-
-      <div style={{ marginBottom: 12, fontWeight: 700 }}>
-        Pending Payables: Rs. {summary.pendingPayables || 0} | Pending Receivables: Rs.{" "}
-        {summary.pendingReceivables || 0}
-      </div>
-
-      <DataTable
-        key={tab}
-        columns={columns}
-        data={entries}
-        serverMode
-        totalPages={totalPages}
-        onFetchData={fetchEntries}
-        searchField="partyName"
-        showExportButtons={false}
-        rightActions={
-          <>
-            <button className={styles.addBtn} onClick={() => handleExport("excel")} type="button">Export Excel</button>
-            <button className={styles.addBtn} onClick={() => handleExport("pdf")} type="button">Export PDF</button>
-          </>
-        }
-      />
     </div>
   );
 };

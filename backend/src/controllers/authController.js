@@ -26,12 +26,13 @@ const setAuthCookie = (res, token) => {
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const safeEmail = String(email || "").toLowerCase().trim();
 
-    if (!name || !email || !password || !role) {
+    if (!name || !safeEmail || !password || !role) {
       return res.status(400).json({ message: "Name, email, password and role are required" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: safeEmail });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -43,7 +44,7 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      email: safeEmail,
       password,
       role,
     });
@@ -66,12 +67,13 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const safeEmail = String(email || "").toLowerCase().trim();
 
-    if (!email || !password) {
+    if (!safeEmail || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email }).populate("role");
+    const user = await User.findOne({ email: safeEmail }).populate("role");
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -81,6 +83,10 @@ export const loginUser = async (req, res) => {
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: "User is inactive. Contact admin to reactivate your account." });
     }
 
     const safeUser = user.toObject();
@@ -117,6 +123,111 @@ export const getUsers = async (req, res) => {
     res.json({
       success: true,
       data: users,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, role } = req.body;
+    const payload = {};
+
+    if (typeof name === "string" && name.trim()) {
+      payload.name = name.trim();
+    }
+
+    if (typeof email === "string" && email.trim()) {
+      const safeEmail = email.toLowerCase().trim();
+      const existingUser = await User.findOne({ email: safeEmail, _id: { $ne: id } });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      payload.email = safeEmail;
+    }
+
+    if (role) {
+      const roleExists = await Role.findById(role);
+      if (!roleExists) {
+        return res.status(400).json({ message: "Invalid role selected" });
+      }
+      payload.role = role;
+    }
+
+    let user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    Object.assign(user, payload);
+    if (typeof password === "string" && password.trim()) {
+      user.password = password.trim();
+    }
+
+    await user.save();
+    user = await User.findById(id).populate("role").select("-password");
+
+    res.json({
+      success: true,
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({ message: "isActive must be boolean" });
+    }
+
+    if (String(req.user._id) === String(id) && !isActive) {
+      return res.status(400).json({ message: "You cannot deactivate your own account" });
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      id,
+      { isActive },
+      { returnDocument: "after", runValidators: true }
+    ).populate("role").select("-password");
+
+    if (!updated) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "User status updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (String(req.user._id) === String(id)) {
+      return res.status(400).json({ message: "You cannot delete your own account" });
+    }
+
+    const deleted = await User.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "User deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

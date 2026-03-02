@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./QCList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const QCList = () => {
   const [qcList, setQcList] = useState([]);
@@ -50,22 +51,29 @@ const QCList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>QC Management</h2>
-        <Link to="/qc/add" className={styles.addBtn}>
-          + Add QC
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Quality Workspace</p>
+        <h1 className={hero.title}>QC Management</h1>
+        <p className={hero.subtitle}>Record inspection outcome and control lot release for sales/dispatch.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>QC Register</h2>
+          <Link to="/qc/add" className={styles.addBtn}>
+            + Add QC
+          </Link>
+        </div>
 
-      <DataTable
-        columns={columns}
-        data={qcList}
-        serverMode={true}
-        totalPages={totalPages}
-        onFetchData={fetchQC}
-        searchField="lotNumber"
-      />
+        <DataTable
+          columns={columns}
+          data={qcList}
+          serverMode={true}
+          totalPages={totalPages}
+          onFetchData={fetchQC}
+          searchField="Lot Number"
+        />
+      </div>
     </div>
   );
 };

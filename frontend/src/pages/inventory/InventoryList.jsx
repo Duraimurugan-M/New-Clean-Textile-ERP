@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "./InventoryList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
@@ -45,25 +46,32 @@ const InventoryList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Inventory Management</h2>
-        <button
-          className={styles.addButton}
-          onClick={() => navigate("/inventory/add")}
-        >
-          + Add Inventory
-        </button>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Inventory Workspace</p>
+        <h1 className={hero.title}>Inventory Management</h1>
+        <p className={hero.subtitle}>Track lot-wise quantity, status, and location across stock categories.</p>
       </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Stock Register</h2>
+          <button
+            className={styles.addButton}
+            onClick={() => navigate("/inventory/add")}
+          >
+            + Add Inventory
+          </button>
+        </div>
 
-      <DataTable
-        columns={columns}
-        data={inventory}
-        serverMode={true}
-        totalPages={totalPages}
-        onFetchData={fetchInventory}
-        searchField="lotNumber"
-      />
+        <DataTable
+          columns={columns}
+          data={inventory}
+          serverMode={true}
+          totalPages={totalPages}
+          onFetchData={fetchInventory}
+          searchField="Lot Number or Material"
+        />
+      </div>
     </div>
   );
 };

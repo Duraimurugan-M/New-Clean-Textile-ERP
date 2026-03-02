@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
 import styles from "../sales/SalesList.module.css";
+import hero from "../../styles/moduleHero.module.css";
 
 const ProductionPlanList = () => {
   const [rows, setRows] = useState([]);
@@ -32,21 +33,28 @@ const ProductionPlanList = () => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Production Planning</h2>
-        <Link to="/production-plans/add" className={styles.addBtn}>
-          + Add Plan
-        </Link>
+    <div className={hero.pageWrapper}>
+      <div className={hero.hero}>
+        <p className={hero.kicker}>Production Workspace</p>
+        <h1 className={hero.title}>Production Planning</h1>
+        <p className={hero.subtitle}>Plan process, machine, shift, and required material before execution.</p>
       </div>
-      <DataTable
-        columns={columns}
-        data={rows}
-        serverMode
-        totalPages={totalPages}
-        onFetchData={fetchPlans}
-        searchField="planNumber"
-      />
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Plan Register</h2>
+          <Link to="/production-plans/add" className={styles.addBtn}>
+            + Add Plan
+          </Link>
+        </div>
+        <DataTable
+          columns={columns}
+          data={rows}
+          serverMode
+          totalPages={totalPages}
+          onFetchData={fetchPlans}
+          searchField="Plan Number"
+        />
+      </div>
     </div>
   );
 };

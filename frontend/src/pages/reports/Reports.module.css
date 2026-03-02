@@ -1,0 +1,143 @@
+.pageWrapper {
+  padding: 0;
+}
+
+.hero {
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  margin-bottom: 16px;
+  background:
+    radial-gradient(460px 180px at 0% 0%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 68%),
+    linear-gradient(165deg, var(--surface-strong), var(--surface));
+}
+
+.kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.card {
+  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.kpiCard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 14px;
+}
+
+.kpiCard h4 {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.kpiCard p {
+  margin: 8px 0 0;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.actions {
+  margin-bottom: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.section {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px;
+}
+
+.section h3 {
+  margin-top: 0;
+  color: var(--text);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--line);
+  padding: 9px 10px;
+  text-align: left;
+  color: var(--text);
+}
+
+.table th {
+  background: var(--surface-2);
+}
+
+.loading {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 14px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

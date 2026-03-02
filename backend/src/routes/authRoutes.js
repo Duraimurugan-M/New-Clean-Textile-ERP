@@ -5,6 +5,9 @@ import {
   getMe,
   logoutUser,
   getUsers,
+  updateUser,
+  updateUserStatus,
+  deleteUser,
   // bootstrapSystem,
 } from "../controllers/authController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -26,6 +29,9 @@ router.post("/login", loginUser);
 // router.post("/bootstrap", bootstrapSystem);
 router.get("/me", authMiddleware, getMe);
 router.get("/", authMiddleware, checkPermission("settings", "manageUsers"), getUsers);
+router.put("/:id", authMiddleware, checkPermission("settings", "manageUsers"), updateUser);
+router.patch("/:id/status", authMiddleware, checkPermission("settings", "manageUsers"), updateUserStatus);
+router.delete("/:id", authMiddleware, checkPermission("settings", "manageUsers"), deleteUser);
 router.post("/logout", authMiddleware, logoutUser);
 
 

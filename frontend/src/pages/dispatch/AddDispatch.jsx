@@ -31,11 +31,20 @@ const AddDispatch = () => {
         API.get("/sales-orders"),
         API.get("/inventory?limit=1000"),
       ]);
+      const qcRes = await API.get("/qc?limit=1000");
+      const approvedLots = new Set(
+        (qcRes.data.data || [])
+          .filter((item) => item.status === "Approved")
+          .map((item) => item.lotNumber)
+      );
       setCustomers(custRes.data.data || []);
       setOrders(orderRes.data.data || []);
       setLots(
         (invRes.data.data || []).filter(
-          (item) => item.materialType === "FinishedFabric" && item.quantity > 0
+          (item) =>
+            item.materialType === "FinishedFabric" &&
+            item.quantity > 0 &&
+            approvedLots.has(item.lotNumber)
         )
       );
     };
