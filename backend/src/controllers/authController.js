@@ -289,16 +289,27 @@ export const logoutUser = async (req, res) => {
   when the database was empty and no login token existed.
   Keep this block only as reference for emergency re-initialization.
 
+*/
+
+/*
+  Bootstrap helpers are intentionally commented after initial system setup.
+  Purpose: one-time Admin role/user creation only when DB is empty.
+  Re-enable only for controlled reset scenarios.
+
 const buildAdminPermissions = () => ({
   dashboard: { view: true },
   sales: { view: true, create: true, edit: true, delete: true },
+  salesOrder: { view: true, create: true, edit: true, delete: true },
   purchase: { view: true, create: true, edit: true, delete: true },
   production: { view: true, create: true, edit: true, delete: true },
+  bom: { view: true, create: true, edit: true, delete: true },
+  beam: { view: true, create: true, edit: true, delete: true },
   inventory: { view: true, edit: true, delete: true },
   qc: { view: true, approve: true, reject: true },
   accounts: { view: true, createInvoice: true, manageLedger: true },
   payroll: { view: true, generate: true, manage: true },
   jobWork: { view: true, issue: true, receive: true },
+  dispatch: { view: true, create: true, edit: true, delete: true },
   reports: { view: true, generate: true, export: true },
   settings: { manageUsers: true, manageRoles: true },
 });
@@ -336,15 +347,16 @@ export const bootstrapSystem = async (req, res) => {
       email = "admin@erp.com",
       password = "Admin@123",
     } = req.body;
+    const safeEmail = String(email || "").toLowerCase().trim();
 
-    const existingEmail = await User.findOne({ email: String(email).toLowerCase() });
+    const existingEmail = await User.findOne({ email: safeEmail });
     if (existingEmail) {
       return res.status(400).json({ message: "Admin email already exists" });
     }
 
     const user = await User.create({
-      name,
-      email,
+      name: String(name || "").trim(),
+      email: safeEmail,
       password,
       role: adminRole._id,
     });
@@ -365,3 +377,4 @@ export const bootstrapSystem = async (req, res) => {
   }
 };
 */
+

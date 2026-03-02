@@ -23,9 +23,8 @@ router.post(
 );
 
 router.post("/login", loginUser);
-// Bootstrap route is intentionally disabled after initial system setup.
-// Purpose: this route is only for first-time admin role/user creation when DB is empty.
-// Enable only for controlled one-time bootstrap in non-production environments.
+// Bootstrap route for first-time setup after a fresh DB reset.
+// Controlled by ENABLE_BOOTSTRAP=true and BOOTSTRAP_SECRET validation.
 // router.post("/bootstrap", bootstrapSystem);
 router.get("/me", authMiddleware, getMe);
 router.get("/", authMiddleware, checkPermission("settings", "manageUsers"), getUsers);
