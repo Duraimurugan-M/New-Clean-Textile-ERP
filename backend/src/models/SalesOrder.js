@@ -96,14 +96,13 @@ const salesOrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-salesOrderSchema.pre("validate", function (next) {
+salesOrderSchema.pre("validate", function () {
   const items = this.items || [];
   this.totalQuantity = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   this.totalAmount = items.reduce(
     (sum, item) => sum + Number(item.quantity || 0) * Number(item.ratePerUnit || 0),
     0
   );
-  next();
 });
 
 const SalesOrder = mongoose.model("SalesOrder", salesOrderSchema);
