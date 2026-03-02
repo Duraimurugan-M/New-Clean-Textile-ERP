@@ -105,7 +105,16 @@
 }
 
 .completed {
-  background: #f3f6f5;
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+
+.completed .title,
+.completed .description,
+.completed .meta,
+.completed .eventNotes,
+.completed .empty {
+  color: var(--text);
 }
 
 .todoMain {

@@ -22,6 +22,21 @@ const setAuthCookie = (res, token) => {
   });
 };
 
+const normalizeName = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, "");
+
+const isAdminUser = (user) => {
+  const roleName = normalizeName(user?.role?.name);
+  const settingsPerm = user?.role?.permissions?.settings || {};
+  return (
+    roleName === "admin" ||
+    roleName.includes("admin") ||
+    Boolean(settingsPerm.manageUsers && settingsPerm.manageRoles)
+  );
+};
+
 // 🔹 Register User
 export const registerUser = async (req, res) => {
   try {
@@ -132,7 +147,7 @@ export const getUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role } = req.body;
+    const { name, email, oldPassword, password, role } = req.body;
     const payload = {};
 
     if (typeof name === "string" && name.trim()) {
@@ -156,13 +171,20 @@ export const updateUser = async (req, res) => {
       payload.role = role;
     }
 
-    let user = await User.findById(id);
+    let user = await User.findById(id).populate("role");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     Object.assign(user, payload);
     if (typeof password === "string" && password.trim()) {
+      if (typeof oldPassword !== "string" || !oldPassword.trim()) {
+        return res.status(400).json({ message: "Old password is required to set a new password" });
+      }
+      const isMatch = await user.comparePassword(oldPassword.trim());
+      if (!isMatch) {
+        return res.status(400).json({ message: "Old password is incorrect" });
+      }
       user.password = password.trim();
     }
 
@@ -190,6 +212,14 @@ export const updateUserStatus = async (req, res) => {
 
     if (String(req.user._id) === String(id) && !isActive) {
       return res.status(400).json({ message: "You cannot deactivate your own account" });
+    }
+
+    const targetUser = await User.findById(id).populate("role");
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!isActive && isAdminUser(targetUser)) {
+      return res.status(400).json({ message: "Admin users cannot be deactivated" });
     }
 
     const updated = await User.findByIdAndUpdate(

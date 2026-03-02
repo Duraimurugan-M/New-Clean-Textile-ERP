@@ -20,6 +20,16 @@ const prettify = (value) =>
 const formatRoleName = (value) =>
   prettify(String(value || "").replace(/\s+/g, " "));
 
+const isAdminUser = (user) => {
+  const roleName = normalizeRoleName(user?.role?.name);
+  const settingsPerm = user?.role?.permissions?.settings || {};
+  return (
+    roleName === "admin" ||
+    roleName.includes("admin") ||
+    Boolean(settingsPerm.manageUsers && settingsPerm.manageRoles)
+  );
+};
+
 const UsersSettings = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -35,7 +45,8 @@ const UsersSettings = () => {
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
-    password: "",
+    oldPassword: "",
+    newPassword: "",
     role: "",
   });
 
@@ -101,7 +112,8 @@ const UsersSettings = () => {
     setEditForm({
       name: user.name || "",
       email: user.email || "",
-      password: "",
+      oldPassword: "",
+      newPassword: "",
       role: user.role?._id || roleOptions[0]?.value || "",
     });
   };
@@ -120,7 +132,10 @@ const UsersSettings = () => {
         email: editForm.email,
         role: editForm.role,
       };
-      if (editForm.password.trim()) payload.password = editForm.password.trim();
+      if (editForm.newPassword.trim()) {
+        payload.oldPassword = editForm.oldPassword.trim();
+        payload.password = editForm.newPassword.trim();
+      }
       const { data } = await API.put(`/auth/${editTarget._id}`, payload);
       setUsers((prev) =>
         prev.map((user) => (user._id === editTarget._id ? data.data : user))
@@ -179,9 +194,15 @@ const UsersSettings = () => {
           <button type="button" onClick={() => openEdit(row)}>
             Edit
           </button>
-          <button type="button" onClick={() => toggleStatus(row)}>
-            {row.isActive ? "Inactivate" : "Activate"}
-          </button>
+          {isAdminUser(row) ? (
+            <button type="button" disabled title="Admin users always remain active">
+              Always Active
+            </button>
+          ) : (
+            <button type="button" onClick={() => toggleStatus(row)}>
+              {row.isActive ? "Inactivate" : "Activate"}
+            </button>
+          )}
           <button type="button" onClick={() => removeUser(row)}>
             Delete
           </button>
@@ -280,8 +301,14 @@ const UsersSettings = () => {
             options: roleOptions,
           },
           {
-            name: "password",
-            label: "New Password (Optional)",
+            name: "oldPassword",
+            label: "Old Password",
+            type: "password",
+            placeholder: "Required only when setting new password",
+          },
+          {
+            name: "newPassword",
+            label: "New Password",
             type: "password",
             placeholder: "Leave blank to keep current password",
           },

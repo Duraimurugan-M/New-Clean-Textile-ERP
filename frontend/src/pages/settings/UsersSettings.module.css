@@ -79,3 +79,8 @@
   background: var(--surface-2);
   color: var(--text);
 }
+
+.actionRow button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
