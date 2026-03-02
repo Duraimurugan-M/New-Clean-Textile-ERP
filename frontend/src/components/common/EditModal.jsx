@@ -12,6 +12,7 @@ const EditModal = ({
   onSubmit,
   submitLabel = "Save Changes",
   submitting = false,
+  errorText = "",
 }) => {
   const anchorRef = useRef(null);
   const [overlayTop, setOverlayTop] = useState(0);
@@ -76,6 +77,7 @@ const EditModal = ({
             onSubmit();
           }}
         >
+          {errorText ? <p className={styles.errorText}>{errorText}</p> : null}
           {fields.map((field) => (
             <div key={field.name} className={styles.field}>
               <label>{field.label}</label>

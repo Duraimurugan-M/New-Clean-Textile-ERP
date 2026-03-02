@@ -44,6 +44,11 @@
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
+.form input[type="date"],
+.editForm input[type="date"] {
+  color: var(--text);
+}
+
 .form textarea {
   resize: vertical;
   min-height: 82px;
@@ -222,6 +227,16 @@
 .editForm textarea:focus {
   border-color: #0f766e;
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+:global(html[data-theme="dark"]) .form input[type="date"],
+:global(html[data-theme="dark"]) .editForm input[type="date"] {
+  color-scheme: dark;
+}
+
+:global(html[data-theme="light"]) .form input[type="date"],
+:global(html[data-theme="light"]) .editForm input[type="date"] {
+  color-scheme: light;
 }
 
 @media (max-width: 960px) {

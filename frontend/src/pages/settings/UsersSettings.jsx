@@ -33,7 +33,8 @@ const isAdminUser = (user) => {
 const UsersSettings = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [errorText, setErrorText] = useState("");
+  const [createErrorText, setCreateErrorText] = useState("");
+  const [editErrorText, setEditErrorText] = useState("");
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -72,9 +73,10 @@ const UsersSettings = () => {
       if ((!form.role || !roleExists) && roleList.length > 0) {
         setForm((prev) => ({ ...prev, role: roleList[0]._id }));
       }
-      setErrorText("");
+      setCreateErrorText("");
+      setEditErrorText("");
     } catch (error) {
-      setErrorText(error.response?.data?.message || "Failed to load settings data");
+      setCreateErrorText(error.response?.data?.message || "Failed to load settings data");
     }
   };
 
@@ -95,11 +97,12 @@ const UsersSettings = () => {
     e.preventDefault();
     try {
       setSaving(true);
+      setCreateErrorText("");
       await API.post("/auth/register", form);
       setForm((prev) => ({ ...prev, name: "", email: "", password: "" }));
       await fetchData();
     } catch (error) {
-      setErrorText(error.response?.data?.message || "Failed to create user");
+      setCreateErrorText(error.response?.data?.message || "Failed to create user");
     } finally {
       setSaving(false);
     }
@@ -108,6 +111,7 @@ const UsersSettings = () => {
   const selectedRole = roles.find((r) => r._id === form.role);
 
   const openEdit = (user) => {
+    setEditErrorText("");
     setEditTarget(user);
     setEditForm({
       name: user.name || "",
@@ -127,12 +131,18 @@ const UsersSettings = () => {
     if (!editTarget?._id) return;
     try {
       setSaving(true);
+      setEditErrorText("");
       const payload = {
         name: editForm.name,
         email: editForm.email,
         role: editForm.role,
       };
       if (editForm.newPassword.trim()) {
+        if (editForm.oldPassword.trim() === editForm.newPassword.trim()) {
+          setEditErrorText("New password must be different from old password");
+          setSaving(false);
+          return;
+        }
         payload.oldPassword = editForm.oldPassword.trim();
         payload.password = editForm.newPassword.trim();
       }
@@ -142,7 +152,7 @@ const UsersSettings = () => {
       );
       setEditTarget(null);
     } catch (error) {
-      setErrorText(error.response?.data?.message || "Failed to update user");
+      setEditErrorText(error.response?.data?.message || "Failed to update user");
     } finally {
       setSaving(false);
     }
@@ -157,7 +167,7 @@ const UsersSettings = () => {
         prev.map((item) => (item._id === user._id ? data.data : item))
       );
     } catch (error) {
-      setErrorText(error.response?.data?.message || "Failed to update user status");
+      setCreateErrorText(error.response?.data?.message || "Failed to update user status");
     }
   };
 
@@ -168,7 +178,7 @@ const UsersSettings = () => {
       await API.delete(`/auth/${user._id}`);
       setUsers((prev) => prev.filter((item) => item._id !== user._id));
     } catch (error) {
-      setErrorText(error.response?.data?.message || "Failed to delete user");
+      setCreateErrorText(error.response?.data?.message || "Failed to delete user");
     }
   };
 
@@ -282,7 +292,7 @@ const UsersSettings = () => {
           </button>
         </form>
 
-        {errorText ? <p className={styles.error}>{errorText}</p> : null}
+        {createErrorText ? <p className={styles.error}>{createErrorText}</p> : null}
 
         <DataTable columns={columns} data={users} title="users-settings" />
       </div>
@@ -318,6 +328,7 @@ const UsersSettings = () => {
         onClose={() => setEditTarget(null)}
         onSubmit={submitEdit}
         submitting={saving}
+        errorText={editErrorText}
       />
     </div>
   );

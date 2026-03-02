@@ -12,6 +12,25 @@ const defaultForm = {
 
 const todayDateInput = () => new Date().toISOString().slice(0, 10);
 
+const isStrictDateInput = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+const isValidFutureOrToday = (value) => {
+  if (!isStrictDateInput(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  if (year < 1000 || year > 9999) return false;
+  const parsed = new Date(year, month - 1, day);
+  const isRealDate =
+    parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day;
+  if (!isRealDate) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  parsed.setHours(0, 0, 0, 0);
+  return parsed >= today;
+};
+
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
   const [form, setForm] = useState(defaultForm);
@@ -41,7 +60,8 @@ const TodoList = () => {
   const doneTodos = useMemo(() => todos.filter((todo) => todo.isCompleted), [todos]);
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCreate = async (e) => {
@@ -49,6 +69,14 @@ const TodoList = () => {
     try {
       if (!form.title.trim()) {
         setErrorText("Title is required");
+        return;
+      }
+      if (!form.dueDate) {
+        setErrorText("Due date is required");
+        return;
+      }
+      if (form.dueDate && !isValidFutureOrToday(form.dueDate)) {
+        setErrorText("Due date must be today or a future date in valid format");
         return;
       }
 
@@ -101,13 +129,22 @@ const TodoList = () => {
   };
 
   const handleEditChange = (e) => {
-    setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const saveEdit = async (id) => {
     try {
       if (!editForm.title.trim()) {
         setErrorText("Title is required");
+        return;
+      }
+      if (!editForm.dueDate) {
+        setErrorText("Due date is required");
+        return;
+      }
+      if (editForm.dueDate && !isValidFutureOrToday(editForm.dueDate)) {
+        setErrorText("Due date must be today or a future date in valid format");
         return;
       }
 
@@ -153,8 +190,10 @@ const TodoList = () => {
                 type="date"
                 name="dueDate"
                 min={todayDateInput()}
+                max="9999-12-31"
                 value={editForm.dueDate}
                 onChange={handleEditChange}
+                required
               />
             </div>
           </div>
@@ -241,8 +280,10 @@ const TodoList = () => {
               type="date"
               name="dueDate"
               min={todayDateInput()}
+              max="9999-12-31"
               value={form.dueDate}
               onChange={handleChange}
+              required
             />
           </div>
           <button type="submit" className={styles.addBtn}>

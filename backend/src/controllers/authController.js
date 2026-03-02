@@ -181,6 +181,9 @@ export const updateUser = async (req, res) => {
       if (typeof oldPassword !== "string" || !oldPassword.trim()) {
         return res.status(400).json({ message: "Old password is required to set a new password" });
       }
+      if (oldPassword.trim() === password.trim()) {
+        return res.status(400).json({ message: "New password must be different from old password" });
+      }
       const isMatch = await user.comparePassword(oldPassword.trim());
       if (!isMatch) {
         return res.status(400).json({ message: "Old password is incorrect" });
